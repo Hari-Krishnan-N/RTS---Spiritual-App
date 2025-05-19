@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "991375486953",
+    "project_id": "rhythmbhara-tara-sadhana-517d0",
+    "storage_bucket": "rhythmbhara-tara-sadhana-517d0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991375486953:android:c0ba51d7be98e780a32578",
+        "android_client_info": {
+          "package_name": "com.example.rhythmbhara_tara_sadhana"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "991375486953-0l35shk2cumu0c4p6umlvq5f5klajn4u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rhythmbhara_tara_sadhana",
+            "certificate_hash": "53245f83981dcb0b11db07d76e6d899c664913fc"
+          }
+        },
+        {
+          "client_id": "991375486953-1s34nttf4v2r54mub5p767nk8pggpred.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rhythmbhara_tara_sadhana",
+            "certificate_hash": "f46ebe4fcbb57ad7a7861cd9d33b77b9596f68c4"
+          }
+        },
+        {
+          "client_id": "991375486953-m3g1mfba20iebvtdf7g3eio7rhsq06p1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACa7g12hffxZo_fumw-NjmoM3vL8CSSBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "991375486953-m3g1mfba20iebvtdf7g3eio7rhsq06p1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "991375486953-ud1pq3a2s7011qq4egu33tggds9cr2js.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.rhythmbharaTaraSadhana"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
