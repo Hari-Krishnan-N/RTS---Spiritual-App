@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animations/animations.dart';
 import 'dart:ui';
 import '../providers/sadhana_provider.dart';
-import '../widgets/auth_widgets.dart';
 import 'forgot_password_screen.dart';
 import 'signup_screen.dart';
 
@@ -26,21 +24,18 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _animationController;
   late Animation<double> _logoAnimation;
   late Animation<double> _formAnimation;
-
+  
   // Login Screen Theme Colors
-  final Color _primaryDark = const Color(0xFF0D2B3E); // Deep teal/midnight blue
-  final Color _primaryMedium = const Color(0xFF1A4A6E); // Medium teal blue
-  final Color _accentColor = const Color(0xFFD8B468); // Gentle gold/amber
-  final Color _secondaryAccent = const Color(0xFF6E92A8); // Muted blue-gray
-  final Color _errorColor = const Color(0xFFCF6679); // Soft rose for errors
+  final Color _primaryDark = const Color(0xFF0D2B3E);    // Deep teal/midnight blue
+  final Color _primaryMedium = const Color(0xFF1A4A6E);  // Medium teal blue
+  final Color _accentColor = const Color(0xFFD8B468);    // Gentle gold/amber
+  final Color _errorColor = const Color(0xFFCF6679);     // Soft rose for errors
   final Color _textColor = Colors.white;
-  final Color _inputBgColor = const Color(0x26FFFFFF); // White with 15% opacity
-
+  final Color _inputBgColor = const Color(0x26FFFFFF);   // White with 15% opacity
+  
   // Form focus colors
   final Color _focusedBorderColor = const Color(0xFFD8B468); // Gold for focus
-  final Color _unfocusedBorderColor = const Color(
-    0x33FFFFFF,
-  ); // White with 20% opacity
+  final Color _unfocusedBorderColor = const Color(0x33FFFFFF); // White with 20% opacity
 
   @override
   void initState() {
@@ -70,7 +65,6 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final sadhanaProvider = Provider.of<SadhanaProvider>(context);
-    final size = MediaQuery.of(context).size;
 
     // Check if already logged in
     if (sadhanaProvider.isLoggedIn) {
@@ -120,15 +114,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: ShaderMask(
                       shaderCallback: (Rect bounds) {
                         return LinearGradient(
-                          colors: [
-                            _textColor,
-                            Color.fromRGBO(
-                              _textColor.red,
-                              _textColor.green,
-                              _textColor.blue,
-                              0.7,
-                            ),
-                          ],
+                          colors: [_textColor, Color.fromRGBO(_textColor.red, _textColor.green, _textColor.blue, 0.7)],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ).createShader(bounds);
@@ -186,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                         ),
-
+                        
                         // Main circle container
                         Container(
                           height: 180,
@@ -212,15 +198,14 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           child: Center(
                             child: ShaderMask(
-                              shaderCallback:
-                                  (bounds) => LinearGradient(
-                                    colors: [
-                                      _accentColor,
-                                      const Color(0xFFE8CFA3), // Lighter gold
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ).createShader(bounds),
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [
+                                  _accentColor,
+                                  const Color(0xFFE8CFA3), // Lighter gold
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ).createShader(bounds),
                               child: const Icon(
                                 Icons.self_improvement,
                                 size: 110,
@@ -290,9 +275,7 @@ class _LoginScreenState extends State<LoginScreen>
                               "Sign in to continue your spiritual journey",
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Color(
-                                  0xB3FFFFFF,
-                                ), // White with 70% opacity
+                                color: Color(0xB3FFFFFF), // White with 70% opacity
                               ),
                             ),
 
@@ -355,18 +338,9 @@ class _LoginScreenState extends State<LoginScreen>
                                   Navigator.push(
                                     context,
                                     PageRouteBuilder(
-                                      pageBuilder:
-                                          (
-                                            context,
-                                            animation,
-                                            secondaryAnimation,
-                                          ) => const ForgotPasswordScreen(),
-                                      transitionsBuilder: (
-                                        context,
-                                        animation,
-                                        secondaryAnimation,
-                                        child,
-                                      ) {
+                                      pageBuilder: (context, animation, secondaryAnimation) => 
+                                          const ForgotPasswordScreen(),
+                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
                                         return FadeTransition(
                                           opacity: animation,
                                           child: child,
@@ -394,10 +368,9 @@ class _LoginScreenState extends State<LoginScreen>
                             // Enhanced login button with gradient and animation
                             _buildPrimaryButton(
                               isLoading: sadhanaProvider.isLoading,
-                              onPressed:
-                                  sadhanaProvider.isLoading
-                                      ? null
-                                      : () => _performLogin(context),
+                              onPressed: sadhanaProvider.isLoading
+                                  ? null
+                                  : () => _performLogin(context),
                               label: 'Login',
                               icon: Icons.arrow_forward,
                             ),
@@ -423,9 +396,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 gradient: LinearGradient(
                                   colors: [
                                     Colors.white.withAlpha(0),
-                                    Colors.white.withAlpha(
-                                      204,
-                                    ), // White with 80% opacity
+                                    Colors.white.withAlpha(204), // White with 80% opacity
                                   ],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
@@ -434,18 +405,11 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Text(
                               "OR",
                               style: TextStyle(
-                                color: Color.fromRGBO(
-                                  _textColor.red,
-                                  _textColor.green,
-                                  _textColor.blue,
-                                  0.9,
-                                ),
+                                color: Color.fromRGBO(_textColor.red, _textColor.green, _textColor.blue, 0.9),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),
@@ -457,9 +421,7 @@ class _LoginScreenState extends State<LoginScreen>
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.white.withAlpha(
-                                      204,
-                                    ), // White with 80% opacity
+                                    Colors.white.withAlpha(204), // White with 80% opacity
                                     Colors.white.withAlpha(0),
                                   ],
                                   begin: Alignment.centerLeft,
@@ -480,10 +442,9 @@ class _LoginScreenState extends State<LoginScreen>
                     opacity: _formAnimation,
                     child: _buildSocialLoginButton(
                       isLoading: sadhanaProvider.isLoading,
-                      onPressed:
-                          sadhanaProvider.isLoading
-                              ? null
-                              : () => _signInWithGoogle(context),
+                      onPressed: sadhanaProvider.isLoading
+                          ? null
+                          : () => _signInWithGoogle(context),
                       label: "Sign in with Google",
                       logoAsset: 'assets/images/google_logo.png',
                     ),
@@ -500,12 +461,7 @@ class _LoginScreenState extends State<LoginScreen>
                         Text(
                           "Don't have an account? ",
                           style: TextStyle(
-                            color: Color.fromRGBO(
-                              _textColor.red,
-                              _textColor.green,
-                              _textColor.blue,
-                              0.9,
-                            ),
+                            color: Color.fromRGBO(_textColor.red, _textColor.green, _textColor.blue, 0.9),
                             fontSize: 16,
                           ),
                         ),
@@ -514,20 +470,13 @@ class _LoginScreenState extends State<LoginScreen>
                             Navigator.push(
                               context,
                               PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const SignupScreen(),
-                                transitionsBuilder: (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    const SignupScreen(),
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
                                   return SharedAxisTransition(
                                     animation: animation,
                                     secondaryAnimation: secondaryAnimation,
-                                    transitionType:
-                                        SharedAxisTransitionType.horizontal,
+                                    transitionType: SharedAxisTransitionType.horizontal,
                                     child: child,
                                   );
                                 },
@@ -563,7 +512,7 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
   }
-
+  
   // Reusable glassmorphic card builder
   Widget _buildGlassmorphicCard({required Widget child}) {
     return ClipRRect(
@@ -610,29 +559,26 @@ class _LoginScreenState extends State<LoginScreen>
           color: isFocused ? _focusedBorderColor : _unfocusedBorderColor,
           width: isFocused ? 2.0 : 1.0,
         ),
-        boxShadow:
-            isFocused
-                ? [
-                  BoxShadow(
-                    color: _accentColor.withAlpha(40),
-                    blurRadius: 8,
-                    spreadRadius: 0,
-                  ),
-                ]
-                : null,
+        boxShadow: isFocused
+            ? [
+                BoxShadow(
+                  color: _accentColor.withAlpha(40),
+                  blurRadius: 8,
+                  spreadRadius: 0,
+                ),
+              ]
+            : null,
       ),
       child: TextFormField(
         controller: controller,
-        keyboardType:
-            isPasswordField
-                ? TextInputType.visiblePassword
-                : TextInputType.emailAddress,
+        keyboardType: isPasswordField ? TextInputType.visiblePassword : TextInputType.emailAddress,
         decoration: InputDecoration(
           labelText: isPasswordField ? 'Password' : 'Email',
-          hintText:
-              isPasswordField ? 'Enter your password' : 'Enter your email',
+          hintText: isPasswordField ? 'Enter your password' : 'Enter your email',
           floatingLabelBehavior: FloatingLabelBehavior.never,
-          labelStyle: const TextStyle(color: Colors.white),
+          labelStyle: const TextStyle(
+            color: Colors.white,
+          ),
           hintStyle: const TextStyle(
             color: Color(0xB3FFFFFF), // White with 70% opacity
           ),
@@ -641,23 +587,22 @@ class _LoginScreenState extends State<LoginScreen>
             color: isFocused ? _accentColor : Colors.white,
             size: 22,
           ),
-          suffixIcon:
-              isPasswordField
-                  ? IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: isFocused ? _accentColor : Colors.white,
-                      size: 22,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  )
-                  : null,
+          suffixIcon: isPasswordField
+              ? IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: isFocused ? _accentColor : Colors.white,
+                    size: 22,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                )
+              : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
@@ -668,23 +613,37 @@ class _LoginScreenState extends State<LoginScreen>
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: _errorColor, width: 1.5),
+            borderSide: BorderSide(
+              color: _errorColor,
+              width: 1.5,
+            ),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: _errorColor, width: 1.5),
+            borderSide: BorderSide(
+              color: _errorColor,
+              width: 1.5,
+            ),
           ),
-          errorStyle: TextStyle(color: _errorColor, fontSize: 12),
+          errorStyle: TextStyle(
+            color: _errorColor,
+            fontSize: 12,
+          ),
           filled: false,
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 18,
+          ),
         ),
-        style: const TextStyle(fontSize: 16, color: Colors.white),
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+        ),
         obscureText: isPasswordField && !_isPasswordVisible,
         validator: validator,
       ),
     );
   }
-
+  
   // Reusable primary button builder
   Widget _buildPrimaryButton({
     required bool isLoading,
@@ -724,40 +683,43 @@ class _LoginScreenState extends State<LoginScreen>
           highlightColor: Colors.white.withAlpha(20),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-            child:
-                isLoading
-                    ? const Center(
-                      child: SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
+            child: isLoading
+                ? const Center(
+                    child: SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          strokeWidth: 2,
+                          letterSpacing: 0.5,
                         ),
                       ),
-                    )
-                    : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          label,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(icon, size: 18, color: Colors.white),
-                      ],
-                    ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        icon,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),
     );
   }
-
+  
   // Reusable social login button builder
   Widget _buildSocialLoginButton({
     required bool isLoading,
@@ -789,36 +751,39 @@ class _LoginScreenState extends State<LoginScreen>
           splashColor: Colors.grey.withAlpha(40),
           highlightColor: Colors.grey.withAlpha(20),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
-            child:
-                isLoading
-                    ? const Center(
-                      child: SizedBox(
+            padding: const EdgeInsets.symmetric(
+              vertical: 0,
+              horizontal: 24,
+            ),
+            child: isLoading
+                ? const Center(
+                    child: SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF757575)),
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        logoAsset,
                         height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Color(0xFF757575),
-                          ),
-                          strokeWidth: 2,
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          color: Color(0xFF2C2C2C),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
                         ),
                       ),
-                    )
-                    : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(logoAsset, height: 24),
-                        const SizedBox(width: 16),
-                        Text(
-                          label,
-                          style: const TextStyle(
-                            color: Color(0xFF2C2C2C),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
+                    ],
+                  ),
           ),
         ),
       ),

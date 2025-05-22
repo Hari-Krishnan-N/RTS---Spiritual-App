@@ -3,25 +3,46 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Color constants - keeping the existing colors
-  static const Color primaryColor = Color(0xFFD4A017); // Golden/Yellow color
-  static const Color primaryLightColor = Color(0xFFE9C46A); // Lighter gold
-  static const Color secondaryColor = Color(0xFF8B4513); // Brown
-  static const Color backgroundColor = Color(0xFFF5F5DC); // Light beige
+  // Color constants - updated for consistency
+  static const Color primaryColor = Color(0xFF0D2B3E); // Deep teal/midnight blue
+  static const Color primaryLightColor = Color(0xFF1A4A6E); // Medium teal blue
+  static const Color secondaryColor = Color(0xFF2C3E50); // Dark blue-gray
+  static const Color accentColor = Color(0xFFD8B468); // Gentle gold/amber
+  static const Color backgroundColor = Color(0xFF1A2530); // Darker navy
   static const Color successColor = Color(0xFF28A745); // Green
   static const Color errorColor = Color(0xFFDC3545); // Red
-  static const Color textColor = Color(0xFF333333); // Dark gray
-  static const Color greyColor = Color(0xFF808080); // Grey
-  static const Color accentColor = Color(0xFF3498DB); // Blue accent
-  static const Color cardColor = Color(0xFFFFFBE9); // Light warm card background
+  static const Color textColor = Colors.white; // White text
+  static const Color greyColor = Color(0xFF6E92A8); // Muted blue-gray
+  static const Color cardColor = Color(0xFF21303F); // Slightly lighter card color
   static const Color darkGoldColor = Color(0xFFB8860B); // Darker gold for contrast
   
-  // New colors for enhanced gradients
+  // New colors for enhanced gradients (keeping existing)
   static const Color deepGold = Color(0xFFC19A00);
   static const Color softGold = Color(0xFFF4E992);
   static const Color shimmerGold = Color(0xFFFFF6D9);
   
-  // Enhanced background gradients
+  // Main background gradient
+  static const LinearGradient mainGradient = LinearGradient(
+    colors: [
+      Color(0xFF0D2B3E), // Deep teal/midnight blue
+      Color(0xFF1A4A6E), // Medium teal blue
+      Color(0xFF2A5E80), // Slightly lighter blue
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  // Dashboard gradient
+  static const LinearGradient dashboardGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF2C3E50), // Dark blue-gray
+      Color(0xFF1A2530), // Darker navy
+    ],
+  );
+  
+  // Enhanced background gradients (keep existing)
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [deepGold, primaryColor, primaryLightColor],
     begin: Alignment.topLeft,
@@ -61,11 +82,23 @@ class AppTheme {
     primaryColor: primaryColor,
     scaffoldBackgroundColor: backgroundColor,
     fontFamily: GoogleFonts.poppins().fontFamily,
-    textTheme: GoogleFonts.poppinsTextTheme(),
+    textTheme: GoogleFonts.poppinsTextTheme().apply(
+      bodyColor: textColor,
+      displayColor: textColor,
+    ),
+    
+    colorScheme: const ColorScheme.dark(
+      primary: primaryColor,
+      secondary: accentColor,
+      surface: cardColor,
+      background: backgroundColor,
+      error: errorColor,
+    ),
     
     cardTheme: CardTheme(
       elevation: 6,
       shadowColor: Colors.black45,
+      color: cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     
@@ -85,11 +118,11 @@ class AppTheme {
     
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: primaryColor,
+        backgroundColor: accentColor,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
         elevation: 4,
-        shadowColor: primaryColor.withOpacity(0.5),
+        shadowColor: accentColor.withOpacity(0.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         textStyle: GoogleFonts.poppins(
           fontSize: 16,
@@ -111,22 +144,22 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: primaryColor, width: 2),
+        borderSide: const BorderSide(color: accentColor, width: 2),
       ),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.9),
+      fillColor: Colors.white.withOpacity(0.1),
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      hintStyle: TextStyle(color: greyColor.withOpacity(0.7)),
+      hintStyle: TextStyle(color: textColor.withOpacity(0.7)),
       labelStyle: const TextStyle(
-        color: secondaryColor,
+        color: textColor,
         fontWeight: FontWeight.w500,
       ),
       floatingLabelStyle: const TextStyle(
-        color: primaryColor,
+        color: accentColor,
         fontWeight: FontWeight.bold,
       ),
-      prefixIconColor: primaryColor,
-      suffixIconColor: greyColor,
+      prefixIconColor: accentColor,
+      suffixIconColor: textColor.withOpacity(0.7),
     ),
   );
   
@@ -134,9 +167,9 @@ class AppTheme {
   static InputDecoration searchInputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      prefixIcon: const Icon(Icons.search, color: primaryColor),
+      prefixIcon: const Icon(Icons.search, color: accentColor),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.9),
+      fillColor: Colors.white.withOpacity(0.1),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(30),
         borderSide: BorderSide.none,

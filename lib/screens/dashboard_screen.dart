@@ -5,12 +5,19 @@ import 'dart:ui';
 import '../providers/sadhana_provider.dart';
 import '../utils/app_theme.dart';
 import '../widgets/dashboard_widgets.dart';
-import 'jebam_screen.dart';
-import 'tharpanam_screen.dart';
-import 'homam_screen.dart';
-import 'dhyanam_screen.dart';
+import '../screens/practice_screens_controller.dart';
+import '../utils/navigation_transitions.dart';
 import 'profile_screen.dart';
 import 'status_screen.dart';
+
+// Extension to convert opacity values to alpha (0-255)
+extension ColorExtension on Color {
+  Color withValues({double? alpha}) {
+    if (alpha == null) return this;
+    int alphaInt = (alpha * 255).round();
+    return withAlpha(alphaInt);
+  }
+}
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -40,6 +47,12 @@ class _DashboardScreenState extends State<DashboardScreen>
     _animationController.forward();
   }
 
+  void _setSelectedIndex(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // Check if logged in, if not redirect to login
@@ -51,7 +64,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     // List of screen widgets
     final List<Widget> screens = [
-      const DashboardHomeScreen(),
+      DashboardHomeScreen(onNavigateToTab: _setSelectedIndex),
       const StatusScreen(),
       const ProfileScreen(),
     ];
@@ -86,7 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withAlpha(38),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 30,
                 offset: const Offset(0, -5),
               ),
@@ -101,14 +114,14 @@ class _DashboardScreenState extends State<DashboardScreen>
               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(204),
+                  color: Colors.white.withValues(alpha: 0.8),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(25),
                     topRight: Radius.circular(25),
                   ),
                   border: Border(
                     top: BorderSide(
-                      color: Colors.white.withAlpha(128),
+                      color: Colors.white.withValues(alpha: 0.5),
                       width: 1.5,
                     ),
                   ),
@@ -121,8 +134,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                     });
                   },
                   backgroundColor: Colors.transparent,
-                  selectedItemColor: AppTheme.primaryColor,
-                  unselectedItemColor: Colors.grey.withAlpha(179),
+                  selectedItemColor: AppTheme.accentColor,
+                  unselectedItemColor: Colors.grey.withValues(alpha: 0.7),
                   selectedLabelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 12,
@@ -142,7 +155,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           shape: BoxShape.circle,
                           color:
                               _selectedIndex == 0
-                                  ? AppTheme.primaryColor.withAlpha(51)
+                                  ? AppTheme.accentColor.withValues(alpha: 0.2)
                                   : Colors.transparent,
                         ),
                         child: const Icon(Icons.home_rounded, size: 26),
@@ -157,7 +170,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           shape: BoxShape.circle,
                           color:
                               _selectedIndex == 1
-                                  ? AppTheme.primaryColor.withAlpha(51)
+                                  ? AppTheme.accentColor.withValues(alpha: 0.2)
                                   : Colors.transparent,
                         ),
                         child: const Icon(
@@ -175,7 +188,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           shape: BoxShape.circle,
                           color:
                               _selectedIndex == 2
-                                  ? AppTheme.primaryColor.withAlpha(51)
+                                  ? AppTheme.accentColor.withValues(alpha: 0.2)
                                   : Colors.transparent,
                         ),
                         child: const Icon(Icons.person_rounded, size: 26),
@@ -200,7 +213,12 @@ class _DashboardScreenState extends State<DashboardScreen>
 }
 
 class DashboardHomeScreen extends StatefulWidget {
-  const DashboardHomeScreen({super.key});
+  final Function(int) onNavigateToTab;
+  
+  const DashboardHomeScreen({
+    super.key,
+    required this.onNavigateToTab,
+  });
 
   @override
   State<DashboardHomeScreen> createState() => _DashboardHomeScreenState();
@@ -244,19 +262,16 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
     final photoUrl = provider.userPhotoUrl;
     final size = MediaQuery.of(context).size;
 
-    // New elegant background gradient - deep indigo to dark navy
-    const backgroundGradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [
-        Color(0xFF2C3E50), // Dark blue-gray
-        Color(0xFF1A2530), // Darker navy
-      ],
-    );
-
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(gradient: backgroundGradient),
+        decoration: BoxDecoration(
+          gradient: AppTheme.dashboardGradient,
+          image: const DecorationImage(
+            image: AssetImage('assets/images/subtle_pattern.png'),
+            repeat: ImageRepeat.repeat,
+            opacity: 0.05, // Very subtle pattern overlay
+          ),
+        ),
         child: SafeArea(
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(),
@@ -290,7 +305,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                   "Namaste,",
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white.withAlpha(204),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -305,39 +320,45 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                               ],
                             ),
 
-                            // User avatar with decoration
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white.withAlpha(179),
-                                  width: 2,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withAlpha(51),
-                                    blurRadius: 10,
-                                    spreadRadius: 0,
+                            // User avatar with decoration - clickable to profile
+                            GestureDetector(
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                widget.onNavigateToTab(2); // Navigate to profile tab
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                    width: 2,
                                   ),
-                                ],
-                              ),
-                              child: Hero(
-                                tag: 'profile_avatar',
-                                child: CircleAvatar(
-                                  radius: 28,
-                                  backgroundColor: Colors.white.withAlpha(51),
-                                  backgroundImage:
-                                      photoUrl != null
-                                          ? NetworkImage(photoUrl)
-                                          : null,
-                                  child:
-                                      photoUrl == null
-                                          ? const Icon(
-                                            Icons.person,
-                                            color: Colors.white,
-                                            size: 28,
-                                          )
-                                          : null,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.2),
+                                      blurRadius: 10,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                                child: Hero(
+                                  tag: 'profile_avatar',
+                                  child: CircleAvatar(
+                                    radius: 28,
+                                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                                    backgroundImage:
+                                        photoUrl != null
+                                            ? NetworkImage(photoUrl)
+                                            : null,
+                                    child:
+                                        photoUrl == null
+                                            ? const Icon(
+                                              Icons.person,
+                                              color: Colors.white,
+                                              size: 28,
+                                            )
+                                            : null,
+                                  ),
                                 ),
                               ),
                             ),
@@ -366,7 +387,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withAlpha(77),
+                                    color: Colors.black.withValues(alpha: 0.3),
                                     blurRadius: 16,
                                     spreadRadius: 15,
                                     offset: const Offset(0, 0),
@@ -393,12 +414,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                             shape: BoxShape.circle,
                                             gradient: RadialGradient(
                                               colors: [
-                                                Colors.white.withAlpha(
-                                                  (204 * value).toInt(),
-                                                ),
-                                                Colors.white.withAlpha(
-                                                  (26 * value).toInt(),
-                                                ),
+                                                Colors.white.withValues(alpha: 0.8 * value),
+                                                Colors.white.withValues(alpha: 0.1 * value),
                                                 Colors.transparent,
                                               ],
                                               stops: const [0.0, 0.5, 1.0],
@@ -424,8 +441,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                           shape: BoxShape.circle,
                                           gradient: RadialGradient(
                                             colors: [
-                                              Colors.white.withAlpha(77),
-                                              Colors.white.withAlpha(26),
+                                              Colors.white.withValues(alpha: 0.3),
+                                              Colors.white.withValues(alpha: 0.1),
                                               Colors.transparent,
                                             ],
                                           ),
@@ -494,12 +511,12 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF3A5F2E), // Dark muted green
                           Color(0xFF5C8D4A), // Muted green
                         ],
-                        shadowColor: const Color(0xFF3A5F2E).withAlpha(102),
-                        iconContainerColor: Colors.white.withAlpha(51),
+                        shadowColor: const Color(0xFF3A5F2E).withValues(alpha: 0.4),
+                        iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
                               context,
-                              const JebamScreen(),
+                              0, // Index for JebamScreen
                             ),
                       ),
                     ),
@@ -524,12 +541,12 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF1B4B47), // Deep muted teal
                           Color(0xFF2E706A), // Muted teal
                         ],
-                        shadowColor: const Color(0xFF1B4B47).withAlpha(102),
-                        iconContainerColor: Colors.white.withAlpha(51),
+                        shadowColor: const Color(0xFF1B4B47).withValues(alpha: 0.4),
+                        iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
                               context,
-                              const TharpanamScreen(),
+                              1, // Index for TharpanamScreen
                             ),
                       ),
                     ),
@@ -554,12 +571,12 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF7D3812), // Deep rust
                           Color(0xFFA35735), // Muted orange
                         ],
-                        shadowColor: const Color(0xFF7D3812).withAlpha(102),
-                        iconContainerColor: Colors.white.withAlpha(51),
+                        shadowColor: const Color(0xFF7D3812).withValues(alpha: 0.4),
+                        iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
                               context,
-                              const HomamScreen(),
+                              2, // Index for HomamScreen
                             ),
                       ),
                     ),
@@ -584,12 +601,12 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF362358), // Deep muted purple
                           Color(0xFF4E3980), // Muted purple
                         ],
-                        shadowColor: const Color(0xFF362358).withAlpha(102),
-                        iconContainerColor: Colors.white.withAlpha(51),
+                        shadowColor: const Color(0xFF362358).withValues(alpha: 0.4),
+                        iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
                               context,
-                              const DhyanamScreen(),
+                              3, // Index for DhyanamScreen
                             ),
                       ),
                     ),
@@ -603,28 +620,15 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
     );
   }
 
-  void _navigateToPractice(BuildContext context, Widget screen) {
+  void _navigateToPractice(BuildContext context, int practiceIndex) {
     // Add haptic feedback for better interaction
     HapticFeedback.lightImpact();
 
+    // Use our custom iOS-style transition
     Navigator.push(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => screen,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.05, 0),
-                end: Offset.zero,
-              ).animate(
-                CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-              ),
-              child: child,
-            ),
-          );
-        },
+      CupertinoStylePageRoute(
+        page: PracticeScreensController(initialPage: practiceIndex),
       ),
     );
   }

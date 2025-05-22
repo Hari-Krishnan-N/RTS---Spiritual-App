@@ -8,6 +8,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/splash_screen.dart';
 import 'providers/sadhana_provider.dart';
 import 'utils/app_theme.dart';
+import 'utils/navigation_transitions.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,8 +44,34 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Rhythmbhara Tara Sadhana',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.themeData,
+      theme: AppTheme.themeData, // Use the consistent theme
       initialRoute: '/',
+      onGenerateRoute: (settings) {
+        // Use iOS-style transitions for all routes
+        switch (settings.name) {
+          case '/':
+            return CupertinoStylePageRoute(
+              page: const SplashScreen(),
+              settings: settings,
+            );
+          case '/login':
+            return CupertinoStylePageRoute(
+              page: const LoginScreen(),
+              settings: settings,
+            );
+          case '/dashboard':
+            return CupertinoStylePageRoute(
+              page: const DashboardScreen(),
+              settings: settings,
+            );
+          default:
+            return CupertinoStylePageRoute(
+              page: const SplashScreen(),
+              settings: settings,
+            );
+        }
+      },
+      // Fallback routes if onGenerateRoute doesn't handle
       routes: {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
