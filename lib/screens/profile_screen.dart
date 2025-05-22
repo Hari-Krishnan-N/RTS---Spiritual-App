@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/sadhana_provider.dart';
-import '../utils/app_theme.dart';
 import '../services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -32,11 +31,22 @@ class _ProfileScreenState extends State<ProfileScreen>
   final ImagePicker _picker = ImagePicker();
   File? _imageFile;
   bool _isUpdatingProfile = false;
+  bool _isGoogleUser = false;
+
+  // Login Screen Theme Colors (matching login_screen.dart)
+  final Color _primaryDark = const Color(0xFF0D2B3E);    // Deep teal/midnight blue
+  final Color _primaryMedium = const Color(0xFF1A4A6E);  // Medium teal blue
+  final Color _accentColor = const Color(0xFFD8B468);    // Gentle gold/amber
+  final Color _errorColor = const Color(0xFFCF6679);     // Soft rose for errors
+  final Color _textColor = Colors.white;
+  final Color _inputBgColor = const Color(0x26FFFFFF);   // White with 15% opacity
+  final Color _focusedBorderColor = const Color(0xFFD8B468); // Gold for focus
+  final Color _unfocusedBorderColor = const Color(0x33FFFFFF); // White with 20% opacity
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _checkUserAuthProvider();
     _loadUserData();
   }
 
@@ -49,6 +59,25 @@ class _ProfileScreenState extends State<ProfileScreen>
     _confirmPasswordController.dispose();
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _checkUserAuthProvider() {
+    final user = AuthService().currentUser;
+    if (user != null) {
+      // Check if user signed in with Google
+      for (UserInfo userInfo in user.providerData) {
+        if (userInfo.providerId == 'google.com') {
+          _isGoogleUser = true;
+          break;
+        }
+      }
+    }
+
+    // Initialize TabController based on user type
+    _tabController = TabController(
+      length: _isGoogleUser ? 1 : 2, 
+      vsync: this
+    );
   }
 
   void _loadUserData() {
@@ -68,14 +97,20 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.primaryColor,
-              Color(0xFFE6B325), // Lighter gold
+              _primaryDark,
+              _primaryMedium,
+              const Color(0xFF2A5E80), // Slightly lighter blue
             ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          image: const DecorationImage(
+            image: AssetImage('assets/images/subtle_pattern.png'),
+            repeat: ImageRepeat.repeat,
+            opacity: 0.05,
           ),
         ),
         child: SafeArea(
@@ -89,18 +124,30 @@ class _ProfileScreenState extends State<ProfileScreen>
                     // Profile photo with edit option
                     Stack(
                       children: [
-                        CircleAvatar(
-                          radius: 60,
-                          backgroundColor: Colors.black,
-                          backgroundImage: _getProfileImage(userPhotoUrl),
-                          child:
-                              _getProfileImage(userPhotoUrl) == null
-                                  ? const Icon(
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: _accentColor.withOpacity(0.3),
+                                blurRadius: 15,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 60,
+                            backgroundColor: _primaryDark,
+                            backgroundImage: _getProfileImage(userPhotoUrl),
+                            child: _getProfileImage(userPhotoUrl) == null
+                                ? Icon(
                                     Icons.person,
                                     size: 60,
-                                    color: Colors.white,
+                                    color: _accentColor,
                                   )
-                                  : null,
+                                : null,
+                          ),
                         ),
                         Positioned(
                           bottom: 0,
@@ -108,9 +155,16 @@ class _ProfileScreenState extends State<ProfileScreen>
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: AppTheme.accentColor,
+                              color: _accentColor,
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: IconButton(
                               icon: const Icon(
@@ -126,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Positioned.fill(
                             child: CircularProgressIndicator(
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white.withOpacity(0.7),
+                                _accentColor,
                               ),
                               strokeWidth: 3,
                             ),
@@ -139,10 +193,17 @@ class _ProfileScreenState extends State<ProfileScreen>
                     // Username
                     Text(
                       username,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: _textColor,
+                        shadows: const [
+                          Shadow(
+                            color: Color(0x40000000),
+                            blurRadius: 3,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
                       ),
                     ),
 
@@ -150,23 +211,38 @@ class _ProfileScreenState extends State<ProfileScreen>
                       AuthService().currentUser?.email ?? '',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.white.withOpacity(0.8),
+                        color: _textColor.withOpacity(0.8),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // Tab Bar
+              // Tab Bar (only show if not Google user or show single tab)
               Container(
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.1)),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.white.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                ),
                 child: TabBar(
                   controller: _tabController,
-                  indicatorColor: Colors.white,
-                  tabs: const [
-                    Tab(icon: Icon(Icons.person), text: 'Profile'),
-                    Tab(icon: Icon(Icons.lock), text: 'Password'),
-                  ],
+                  indicatorColor: _accentColor,
+                  indicatorWeight: 3,
+                  labelColor: _accentColor,
+                  unselectedLabelColor: _textColor.withOpacity(0.7),
+                  tabs: _isGoogleUser 
+                    ? [
+                        const Tab(icon: Icon(Icons.person), text: 'Profile'),
+                      ]
+                    : [
+                        const Tab(icon: Icon(Icons.person), text: 'Profile'),
+                        const Tab(icon: Icon(Icons.lock), text: 'Password'),
+                      ],
                 ),
               ),
 
@@ -174,13 +250,14 @@ class _ProfileScreenState extends State<ProfileScreen>
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
-                  children: [
-                    // Profile Tab
-                    _buildProfileTab(),
-
-                    // Password Tab
-                    _buildPasswordTab(),
-                  ],
+                  children: _isGoogleUser 
+                    ? [
+                        _buildProfileTab(),
+                      ]
+                    : [
+                        _buildProfileTab(),
+                        _buildPasswordTab(),
+                      ],
                 ),
               ),
             ],
@@ -196,38 +273,46 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Column(
         children: [
           // Profile Info Card
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 15,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               child: Form(
                 key: _profileFormKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Edit Profile',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: _textColor,
                       ),
                     ),
 
                     const SizedBox(height: 20),
 
                     // Name field
-                    TextFormField(
+                    _buildTextFormField(
                       controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: 'Name',
-                        prefixIcon: const Icon(Icons.person),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                      labelText: 'Name',
+                      prefixIcon: Icons.person,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your name';
@@ -239,19 +324,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                     const SizedBox(height: 20),
 
                     // Email field (read-only)
-                    TextFormField(
+                    _buildTextFormField(
                       controller: _emailController,
+                      labelText: 'Email',
+                      prefixIcon: Icons.email,
                       readOnly: true,
                       enabled: false,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: const Icon(Icons.email),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.withOpacity(0.1),
-                      ),
                     ),
 
                     const SizedBox(height: 30),
@@ -259,32 +337,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                     // Update button
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
+                      child: _buildPrimaryButton(
+                        isLoading: _isUpdatingProfile,
                         onPressed: _isUpdatingProfile ? null : _updateProfile,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.accentColor,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child:
-                            _isUpdatingProfile
-                                ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                                : const Text(
-                                  'Update Profile',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                        label: 'Update Profile',
                       ),
                     ),
                   ],
@@ -296,38 +352,63 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 20),
 
           // Sign out button
-          Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 15,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Account',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 20, 
+                      fontWeight: FontWeight.bold,
+                      color: _textColor,
+                    ),
                   ),
 
                   const SizedBox(height: 20),
 
                   // Sign out button
-                  ListTile(
-                    leading: const Icon(Icons.logout, color: Colors.red),
-                    title: const Text(
-                      'Sign Out',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _errorColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _errorColor.withOpacity(0.3),
+                        width: 1,
                       ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    child: ListTile(
+                      leading: Icon(Icons.logout, color: _errorColor),
+                      title: Text(
+                        'Sign Out',
+                        style: TextStyle(
+                          color: _errorColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      onTap: _confirmSignOut,
                     ),
-                    tileColor: Colors.red.withOpacity(0.1),
-                    onTap: _confirmSignOut,
                   ),
                 ],
               ),
@@ -341,34 +422,47 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget _buildPasswordTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.2),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 15,
+              spreadRadius: 0,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           child: Form(
             key: _passwordFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Change Password',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: _textColor,
+                  ),
                 ),
 
                 const SizedBox(height: 20),
 
                 // Current password
-                TextFormField(
+                _buildTextFormField(
                   controller: _currentPasswordController,
+                  labelText: 'Current Password',
+                  prefixIcon: Icons.lock,
                   obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Current Password',
-                    prefixIcon: const Icon(Icons.lock),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your current password';
@@ -380,16 +474,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                 const SizedBox(height: 20),
 
                 // New password
-                TextFormField(
+                _buildTextFormField(
                   controller: _newPasswordController,
+                  labelText: 'New Password',
+                  prefixIcon: Icons.lock_outline,
                   obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'New Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a new password';
@@ -404,16 +493,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                 const SizedBox(height: 20),
 
                 // Confirm new password
-                TextFormField(
+                _buildTextFormField(
                   controller: _confirmPasswordController,
+                  labelText: 'Confirm New Password',
+                  prefixIcon: Icons.lock_outline,
                   obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Confirm New Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please confirm your new password';
@@ -430,36 +514,151 @@ class _ProfileScreenState extends State<ProfileScreen>
                 // Update button
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: _buildPrimaryButton(
+                    isLoading: _isUpdatingProfile,
                     onPressed: _isUpdatingProfile ? null : _changePassword,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentColor,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child:
-                        _isUpdatingProfile
-                            ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                            : const Text(
-                              'Change Password',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                    label: 'Change Password',
                   ),
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String labelText,
+    required IconData prefixIcon,
+    bool obscureText = false,
+    bool readOnly = false,
+    bool enabled = true,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      readOnly: readOnly,
+      enabled: enabled,
+      style: TextStyle(
+        fontSize: 16,
+        color: enabled ? _textColor : _textColor.withOpacity(0.5),
+      ),
+      decoration: InputDecoration(
+        labelText: labelText,
+        hintText: enabled ? 'Enter your $labelText' : null,
+        prefixIcon: Icon(
+          prefixIcon,
+          color: enabled ? _accentColor : _textColor.withOpacity(0.5),
+        ),
+        labelStyle: TextStyle(
+          color: enabled ? _textColor : _textColor.withOpacity(0.5),
+        ),
+        hintStyle: TextStyle(
+          color: _textColor.withOpacity(0.5),
+        ),
+        filled: true,
+        fillColor: enabled ? _inputBgColor : Colors.grey.withOpacity(0.1),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: _focusedBorderColor,
+            width: 2,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: _unfocusedBorderColor,
+            width: 1,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: _errorColor,
+            width: 1.5,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: _errorColor,
+            width: 1.5,
+          ),
+        ),
+        errorStyle: TextStyle(
+          color: _errorColor,
+          fontSize: 12,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 18,
+          horizontal: 16,
+        ),
+      ),
+      validator: validator,
+    );
+  }
+
+  Widget _buildPrimaryButton({
+    required bool isLoading,
+    required VoidCallback? onPressed,
+    required String label,
+  }) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFDAB35C), // Slightly brighter gold
+            _accentColor,
+            const Color(0xFFBE975B), // Darker gold
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: _accentColor.withOpacity(0.3),
+            blurRadius: 15,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(16),
+          splashColor: Colors.white.withOpacity(0.2),
+          highlightColor: Colors.white.withOpacity(0.1),
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
           ),
         ),
       ),
@@ -484,103 +683,134 @@ class _ProfileScreenState extends State<ProfileScreen>
   void _showImagePickerOptions() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
       ),
       builder: (builder) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Profile Picture',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Camera option
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                        _pickImage(ImageSource.camera);
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              size: 40,
-                              color: AppTheme.primaryColor,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text('Camera'),
-                        ],
-                      ),
+        return Container(
+          decoration: BoxDecoration(
+            color: _primaryMedium,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(25.0)),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Profile Picture',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: _textColor,
                     ),
-
-                    // Gallery option
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                        _pickImage(ImageSource.gallery);
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.photo_library,
-                              size: 40,
-                              color: AppTheme.primaryColor,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text('Gallery'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Remove photo option
-                if (Provider.of<SadhanaProvider>(
-                      context,
-                      listen: false,
-                    ).userPhotoUrl !=
-                    null)
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.delete),
-                    label: const Text('Remove Photo'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _removeProfilePhoto();
-                    },
                   ),
-              ],
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Camera option
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          _pickImage(ImageSource.camera);
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: _accentColor.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: _accentColor.withOpacity(0.5),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.camera_alt,
+                                size: 32,
+                                color: _accentColor,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Camera',
+                              style: TextStyle(color: _textColor),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Gallery option
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          _pickImage(ImageSource.gallery);
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: _accentColor.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: _accentColor.withOpacity(0.5),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.photo_library,
+                                size: 32,
+                                color: _accentColor,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Gallery',
+                              style: TextStyle(color: _textColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Remove photo option
+                  if (Provider.of<SadhanaProvider>(
+                        context,
+                        listen: false,
+                      ).userPhotoUrl !=
+                      null)
+                    OutlinedButton.icon(
+                      icon: Icon(Icons.delete, color: _errorColor),
+                      label: Text(
+                        'Remove Photo',
+                        style: TextStyle(color: _errorColor),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: _errorColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _removeProfilePhoto();
+                      },
+                    ),
+                ],
+              ),
             ),
           ),
         );
@@ -749,25 +979,42 @@ class _ProfileScreenState extends State<ProfileScreen>
   void _confirmSignOut() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Sign Out'),
-            content: const Text('Are you sure you want to sign out?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _signOut();
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text('Sign Out'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        backgroundColor: _primaryMedium,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          'Sign Out',
+          style: TextStyle(color: _textColor),
+        ),
+        content: Text(
+          'Are you sure you want to sign out?',
+          style: TextStyle(color: _textColor.withOpacity(0.8)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: _textColor.withOpacity(0.7)),
+            ),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _signOut();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _errorColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -794,10 +1041,22 @@ class _ProfileScreenState extends State<ProfileScreen>
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
@@ -805,10 +1064,22 @@ class _ProfileScreenState extends State<ProfileScreen>
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: _errorColor,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }

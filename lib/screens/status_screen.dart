@@ -17,6 +17,23 @@ class _StatusScreenState extends State<StatusScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
+  // Enhanced Color Palette
+  static const Color primaryDeepBlue = Color(0xFF1A237E);
+  static const Color primaryIndigo = Color(0xFF3949AB);
+  static const Color accentGold = Color(0xFFFFB300);
+  static const Color accentLightGold = Color(0xFFFFCC02);
+  static const Color softTeal = Color(0xFF4DB6AC);
+  static const Color gentleOrange = Color(0xFFFF8A65);
+  static const Color lavenderPurple = Color(0xFF9575CD);
+  static const Color deepPurple = Color(0xFF512DA8);
+  static const Color successGreen = Color(0xFF66BB6A);
+  static const Color errorCoral = Color(0xFFEF5350);
+  static const Color cardBackground = Color(0x28FFFFFF); // White with 16% opacity
+  static const Color cardBorder = Color(0x40FFFFFF); // White with 25% opacity
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xCCFFFFFF); // White with 80% opacity
+  static const Color textTertiary = Color(0x99FFFFFF); // White with 60% opacity
+
   @override
   void initState() {
     super.initState();
@@ -55,12 +72,16 @@ class _StatusScreenState extends State<StatusScreen>
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.mainGradient,
-          image: const DecorationImage(
-            image: AssetImage('assets/images/subtle_pattern.png'),
-            repeat: ImageRepeat.repeat,
-            opacity: 0.05, // Very subtle pattern overlay
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              primaryDeepBlue,
+              primaryIndigo,
+              deepPurple,
+            ],
+            stops: [0.0, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
@@ -83,15 +104,15 @@ class _StatusScreenState extends State<StatusScreen>
                             const Text(
                               'MY PROGRESS',
                               style: TextStyle(
-                                fontSize: 24,
+                                fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: textPrimary,
                                 letterSpacing: 1.5,
                                 shadows: [
                                   Shadow(
-                                    color: Color(0x40000000),
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2),
+                                    color: Color(0x60000000),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 3),
                                   ),
                                 ],
                               ),
@@ -99,39 +120,47 @@ class _StatusScreenState extends State<StatusScreen>
                             const Text(
                               'Track your spiritual journey',
                               style: TextStyle(
-                                fontSize: 14,
-                                color: Color(0xCCFFFFFF), // White with 80% opacity
+                                fontSize: 16,
+                                color: textSecondary,
+                                fontWeight: FontWeight.w300,
                               ),
                             ),
                           ],
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                            horizontal: 16,
+                            vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 51),
-                            borderRadius: BorderRadius.circular(20),
+                            color: cardBackground,
+                            borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 77),
+                              color: cardBorder,
                               width: 1,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: Row(
                             children: [
                               const Icon(
                                 Icons.calendar_today,
-                                size: 14,
-                                color: Colors.white,
+                                size: 16,
+                                color: accentLightGold,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 6),
                               Text(
                                 currentMonth,
                                 style: const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.white,
+                                  color: textPrimary,
                                 ),
                               ),
                             ],
@@ -140,7 +169,7 @@ class _StatusScreenState extends State<StatusScreen>
                       ],
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 32),
 
                     // Summary cards
                     _buildSummarySection(
@@ -149,7 +178,7 @@ class _StatusScreenState extends State<StatusScreen>
                       totalJebam,
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 32),
 
                     // Current month status
                     _buildCurrentMonthStatus(
@@ -159,13 +188,13 @@ class _StatusScreenState extends State<StatusScreen>
                       dhyanamStatus,
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 32),
 
                     // Monthly history
                     _buildMonthlyHistory(provider),
                     
                     // Bottom padding
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
@@ -189,21 +218,27 @@ class _StatusScreenState extends State<StatusScreen>
             const Text(
               'Summary',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: textPrimary,
               ),
             ),
-            const SizedBox(width: 10),
-            Container(
-              height: 1,
-              width: 40,
-              color: Colors.white.withValues(alpha: 128),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Container(
+                height: 2,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [accentGold, Colors.transparent],
+                    stops: const [0.0, 1.0],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
 
         // Summary cards grid
         GridView.count(
@@ -219,8 +254,8 @@ class _StatusScreenState extends State<StatusScreen>
               title: 'Total Jebam',
               value: totalJebam.toString(),
               icon: Icons.format_list_numbered,
-              color: AppTheme.accentColor, // Accent color from theme
-              iconBackgroundColor: AppTheme.accentColor.withValues(alpha: 38),
+              color: accentGold,
+              iconBackgroundColor: accentGold.withOpacity(0.2),
             ),
 
             // Total months active card
@@ -229,8 +264,8 @@ class _StatusScreenState extends State<StatusScreen>
               value:
                   '${completionStats.values.where((count) => count > 0).length}',
               icon: Icons.calendar_month,
-              color: const Color(0xFF6BAAEC), // Sky blue
-              iconBackgroundColor: const Color(0xFF6BAAEC).withValues(alpha: 38),
+              color: softTeal,
+              iconBackgroundColor: softTeal.withOpacity(0.2),
             ),
 
             // Tharpanam completion rate
@@ -238,8 +273,8 @@ class _StatusScreenState extends State<StatusScreen>
               title: 'Tharpanam',
               value: '${(completionStats['tharpanam'] ?? 0)} times',
               icon: Icons.water_drop,
-              color: const Color(0xFF7AC1D0), // Light blue
-              iconBackgroundColor: const Color(0xFF7AC1D0).withValues(alpha: 38),
+              color: softTeal,
+              iconBackgroundColor: softTeal.withOpacity(0.2),
             ),
 
             // Homam completion rate
@@ -247,8 +282,8 @@ class _StatusScreenState extends State<StatusScreen>
               title: 'Homam',
               value: '${(completionStats['homam'] ?? 0)} times',
               icon: Icons.local_fire_department,
-              color: const Color(0xFFEE8B5E), // Soft orange
-              iconBackgroundColor: const Color(0xFFEE8B5E).withValues(alpha: 38),
+              color: gentleOrange,
+              iconBackgroundColor: gentleOrange.withOpacity(0.2),
             ),
           ],
         ),
@@ -264,7 +299,7 @@ class _StatusScreenState extends State<StatusScreen>
     required Color iconBackgroundColor,
   }) {
     return _buildGlassmorphicContainer(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -272,17 +307,24 @@ class _StatusScreenState extends State<StatusScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: iconBackgroundColor,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
               Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white.withValues(alpha: 128), // White with 50% opacity
-                size: 14,
+                Icons.trending_up,
+                color: textTertiary,
+                size: 16,
               ),
             ],
           ),
@@ -290,17 +332,25 @@ class _StatusScreenState extends State<StatusScreen>
           Text(
             value,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: textPrimary,
+              shadows: [
+                Shadow(
+                  color: Color(0x40000000),
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
-              color: Colors.white.withValues(alpha: 179), // White with 70% opacity
+              color: textSecondary,
+              fontWeight: FontWeight.w400,
             ),
           ),
         ],
@@ -322,25 +372,31 @@ class _StatusScreenState extends State<StatusScreen>
             const Text(
               'Current Month',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: textPrimary,
               ),
             ),
-            const SizedBox(width: 10),
-            Container(
-              height: 1,
-              width: 40,
-              color: Colors.white.withValues(alpha: 128), // White with 50% opacity
+            const SizedBox(width: 12),
+            Expanded(
+              child: Container(
+                height: 2,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [accentGold, Colors.transparent],
+                    stops: const [0.0, 1.0],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
 
         // Status cards
         _buildGlassmorphicContainer(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           child: Column(
             children: [
               // Jebam status
@@ -349,37 +405,37 @@ class _StatusScreenState extends State<StatusScreen>
                 value: jebamCount.toString(),
                 icon: Icons.format_list_numbered,
                 isCount: true,
-                color: AppTheme.accentColor, // Accent color from theme
+                color: accentGold,
               ),
 
-              const Divider(color: Color(0x40FFFFFF), height: 32), // White with 25% opacity
+              const Divider(color: cardBorder, height: 36),
 
               // Tharpanam status
               _buildStatusItem(
                 title: 'Tharpanam',
                 isCompleted: tharpanamStatus,
                 icon: Icons.water_drop,
-                color: const Color(0xFF7AC1D0), // Light blue
+                color: softTeal,
               ),
 
-              const Divider(color: Color(0x40FFFFFF), height: 32), // White with 25% opacity
+              const Divider(color: cardBorder, height: 36),
 
               // Homam status
               _buildStatusItem(
                 title: 'Homam',
                 isCompleted: homamStatus,
                 icon: Icons.local_fire_department,
-                color: const Color(0xFFEE8B5E), // Soft orange
+                color: gentleOrange,
               ),
 
-              const Divider(color: Color(0x40FFFFFF), height: 32), // White with 25% opacity
+              const Divider(color: cardBorder, height: 36),
 
               // Dhyanam status
               _buildStatusItem(
                 title: 'Dhyanam',
                 isCompleted: dhyanamStatus,
                 icon: Icons.self_improvement,
-                color: const Color(0xFF9C89CF), // Light purple
+                color: lavenderPurple,
               ),
             ],
           ),
@@ -400,28 +456,35 @@ class _StatusScreenState extends State<StatusScreen>
       children: [
         // Icon container
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 51),
+            color: color.withOpacity(0.15),
             shape: BoxShape.circle,
             border: Border.all(
-              color: color.withValues(alpha: 102), 
-              width: 1
+              color: color.withOpacity(0.3), 
+              width: 2
             ),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: Icon(icon, color: color, size: 20),
+          child: Icon(icon, color: color, size: 22),
         ),
 
-        const SizedBox(width: 16),
+        const SizedBox(width: 20),
 
         // Title
         Expanded(
           child: Text(
             title,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.w500,
-              color: Colors.white,
+              color: textPrimary,
             ),
           ),
         ),
@@ -429,53 +492,53 @@ class _StatusScreenState extends State<StatusScreen>
         // Value or status
         isCount
             ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 51),
-                borderRadius: BorderRadius.circular(16),
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: color.withValues(alpha: 102), 
-                  width: 1
+                  color: color.withOpacity(0.3), 
+                  width: 1.5
                 ),
               ),
               child: Text(
                 value!,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: color,
                 ),
               ),
             )
             : Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: (isCompleted! 
-                    ? AppTheme.successColor 
-                    : AppTheme.errorColor).withValues(alpha: 51),
-                borderRadius: BorderRadius.circular(16),
+                    ? successGreen 
+                    : errorCoral).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: (isCompleted 
-                    ? AppTheme.successColor 
-                    : AppTheme.errorColor).withValues(alpha: 102),
-                  width: 1,
+                    ? successGreen 
+                    : errorCoral).withOpacity(0.3),
+                  width: 1.5,
                 ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    isCompleted ? Icons.check : Icons.close,
-                    color: isCompleted ? AppTheme.successColor : AppTheme.errorColor,
-                    size: 16,
+                    isCompleted ? Icons.check_circle : Icons.cancel,
+                    color: isCompleted ? successGreen : errorCoral,
+                    size: 18,
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   Text(
                     isCompleted ? 'Completed' : 'Pending',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: isCompleted ? AppTheme.successColor : AppTheme.errorColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isCompleted ? successGreen : errorCoral,
                     ),
                   ),
                 ],
@@ -513,24 +576,30 @@ class _StatusScreenState extends State<StatusScreen>
             const Text(
               'Monthly History',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: textPrimary,
               ),
             ),
-            const SizedBox(width: 10),
-            Container(
-              height: 1,
-              width: 40,
-              color: Colors.white.withValues(alpha: 128), // White with 50% opacity
+            const SizedBox(width: 12),
+            Expanded(
+              child: Container(
+                height: 2,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [accentGold, Colors.transparent],
+                    stops: const [0.0, 1.0],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
 
         _buildGlassmorphicContainer(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               ...List.generate(
@@ -539,7 +608,7 @@ class _StatusScreenState extends State<StatusScreen>
                   children: [
                     _buildMonthHistoryItem(monthlyData[index]),
                     if (index < monthlyData.length - 1)
-                      const Divider(color: Color(0x40FFFFFF), height: 24), // White with 25% opacity
+                      const Divider(color: cardBorder, height: 32),
                   ],
                 ),
               ),
@@ -570,30 +639,44 @@ class _StatusScreenState extends State<StatusScreen>
     // Calculate progress color based on percentage
     Color progressColor;
     if (percentage == 100) {
-      progressColor = AppTheme.successColor;
+      progressColor = successGreen;
     } else if (percentage >= 75) {
-      progressColor = const Color(0xFF9ECE6A); // Light green
+      progressColor = accentLightGold;
     } else if (percentage >= 50) {
-      progressColor = AppTheme.accentColor; // Accent gold
+      progressColor = softTeal;
     } else if (percentage >= 25) {
-      progressColor = const Color(0xFFEDA756); // Amber/orange
+      progressColor = gentleOrange;
     } else {
-      progressColor = AppTheme.errorColor;
+      progressColor = errorCoral;
     }
 
     return Row(
       children: [
         // Month indicator
         Container(
-          width: 50,
-          height: 50,
+          width: 56,
+          height: 56,
           decoration: BoxDecoration(
-            color: AppTheme.accentColor.withValues(alpha: 38), // Gold with 15% opacity
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                accentGold.withOpacity(0.2),
+                accentLightGold.withOpacity(0.1),
+              ],
+            ),
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppTheme.accentColor.withValues(alpha: 77), // Gold with 30% opacity
-              width: 1
+              color: accentGold.withOpacity(0.4),
+              width: 1.5
             ),
+            boxShadow: [
+              BoxShadow(
+                color: accentGold.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -601,23 +684,24 @@ class _StatusScreenState extends State<StatusScreen>
               Text(
                 monthName,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: textPrimary,
                 ),
               ),
               Text(
                 year,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
-                  color: Colors.white.withValues(alpha: 179), // White with 70% opacity
+                  color: textTertiary,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],
           ),
         ),
 
-        const SizedBox(width: 16),
+        const SizedBox(width: 20),
 
         // Status and progress
         Expanded(
@@ -626,16 +710,16 @@ class _StatusScreenState extends State<StatusScreen>
             children: [
               // Progress indicator
               ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
                 child: LinearProgressIndicator(
                   value: percentage / 100,
-                  backgroundColor: Colors.white.withValues(alpha: 51), // White with 20% opacity
+                  backgroundColor: Colors.white.withOpacity(0.2),
                   color: progressColor,
-                  minHeight: 8,
+                  minHeight: 10,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
 
               // Status icons row
               Row(
@@ -644,25 +728,25 @@ class _StatusScreenState extends State<StatusScreen>
                   _buildStatusIcon(
                     tharpanamStatus,
                     Icons.water_drop,
-                    const Color(0xFF7AC1D0), // Light blue
+                    softTeal,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
                   _buildStatusIcon(
                     homamStatus,
                     Icons.local_fire_department,
-                    const Color(0xFFEE8B5E), // Soft orange
+                    gentleOrange,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
                   _buildStatusIcon(
                     dhyanamStatus,
                     Icons.self_improvement,
-                    const Color(0xFF9C89CF), // Light purple
+                    lavenderPurple,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
                   _buildStatusIcon(
                     jebamCount > 0,
                     Icons.format_list_numbered,
-                    AppTheme.accentColor, // Gold
+                    accentGold,
                   ),
                 ],
               ),
@@ -674,19 +758,19 @@ class _StatusScreenState extends State<StatusScreen>
 
         // Percentage label
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: progressColor.withValues(alpha: 51),
-            borderRadius: BorderRadius.circular(12),
+            color: progressColor.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: progressColor.withValues(alpha: 102),
-              width: 1,
+              color: progressColor.withOpacity(0.3),
+              width: 1.5,
             ),
           ),
           child: Text(
             '$percentage%',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
               color: progressColor,
             ),
@@ -698,23 +782,30 @@ class _StatusScreenState extends State<StatusScreen>
 
   Widget _buildStatusIcon(bool isCompleted, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: isCompleted 
-            ? color.withValues(alpha: 51)
-            : Colors.grey.withValues(alpha: 51), 
+            ? color.withOpacity(0.2)
+            : Colors.grey.withOpacity(0.15), 
         shape: BoxShape.circle,
         border: Border.all(
           color: isCompleted 
-              ? color.withValues(alpha: 102)
-              : Colors.grey.withValues(alpha: 102), 
-          width: 1,
+              ? color.withOpacity(0.4)
+              : Colors.grey.withOpacity(0.3), 
+          width: 1.5,
         ),
+        boxShadow: isCompleted ? [
+          BoxShadow(
+            color: color.withOpacity(0.2),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ] : [],
       ),
       child: Icon(
         icon, 
-        color: isCompleted ? color : Colors.grey.withValues(alpha: 179), 
-        size: 14
+        color: isCompleted ? color : Colors.grey.withOpacity(0.6), 
+        size: 16
       ),
     );
   }
@@ -728,22 +819,28 @@ class _StatusScreenState extends State<StatusScreen>
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 38), // White with 15% opacity
+            color: cardBackground,
             borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 77), // White with 30% opacity
+              color: cardBorder,
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 38), // Black with 15% opacity
+                color: Colors.black.withOpacity(0.1),
                 blurRadius: 20,
                 spreadRadius: 0,
-                offset: const Offset(0, 5),
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: Colors.white.withOpacity(0.05),
+                blurRadius: 1,
+                spreadRadius: 0,
+                offset: const Offset(0, 1),
               ),
             ],
           ),

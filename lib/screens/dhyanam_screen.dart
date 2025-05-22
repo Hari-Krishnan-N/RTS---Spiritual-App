@@ -21,15 +21,19 @@ class _DhyanamScreenState extends State<DhyanamScreen>
   int selectedMonth = DateTime.now().month;
   int selectedYear = DateTime.now().year;
   bool _dhyanamStatus = false;
-  
+
   // Wave animation variables
   final List<Map<String, dynamic>> _waves = [];
-  
+
   // Deep Purple Theme Colors
-  final Color _deepPurple = const Color(0xFF362358); // Deep purple from dashboard card
-  final Color _lightPurple = const Color(0xFF4E3980); // Light purple from dashboard card
+  final Color _deepPurple = const Color(
+    0xFF362358,
+  ); // Deep purple from dashboard card
+  final Color _lightPurple = const Color(
+    0xFF4E3980,
+  ); // Light purple from dashboard card
   final Color _accentPurple = const Color(0xFF9C89CF); // Light accent purple
-  
+
   @override
   void initState() {
     super.initState();
@@ -39,15 +43,12 @@ class _DhyanamScreenState extends State<DhyanamScreen>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
+
     // Reduced rotation angle to minimize visual disruption
     _rotateAnimation = Tween<double>(begin: -0.03, end: 0.03).animate(
-      CurvedAnimation(
-        parent: _animationController, 
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    
+
     // Create wave animations
     _createWaves();
 
@@ -57,14 +58,17 @@ class _DhyanamScreenState extends State<DhyanamScreen>
       setState(() {
         _dhyanamStatus = provider.dhyanamStatus;
       });
-      
+
       // Set animation to repeat with slower speed for stability
-      _animationController.repeat(reverse: true, period: const Duration(milliseconds: 2500));
+      _animationController.repeat(
+        reverse: true,
+        period: const Duration(milliseconds: 2500),
+      );
     });
 
     _animationController.forward();
   }
-  
+
   void _createWaves() {
     // Create 3 circular waves with different speeds and sizes
     for (int i = 0; i < 3; i++) {
@@ -103,7 +107,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
         title: Text(
           'DHYANAM',
           style: const TextStyle(
-            fontWeight: FontWeight.bold, 
+            fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
             shadows: [
               Shadow(
@@ -115,23 +119,14 @@ class _DhyanamScreenState extends State<DhyanamScreen>
           ),
         ),
         backgroundColor: Colors.transparent,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light,
-          systemNavigationBarColor: _deepPurple,
-          systemNavigationBarIconBrightness: Brightness.light,
-        ),
         elevation: 0,
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 51),
+              color: Colors.white.withAlpha(51),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 77),
-                width: 1,
-              ),
+              border: Border.all(color: Colors.white.withAlpha(77), width: 1),
             ),
             child: const Icon(Icons.arrow_back, color: Colors.white),
           ),
@@ -142,9 +137,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: backgroundGradient,
-        ),
+        decoration: BoxDecoration(gradient: backgroundGradient),
         child: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -166,15 +159,18 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                   // Ritual status illustration with fixed size container to prevent layout shifts
                   Center(
                     child: SizedBox(
-                      width: 200, // Fixed width container to prevent layout shifts
-                      height: 200, // Fixed height container to prevent layout shifts
+                      width:
+                          200, // Fixed width container to prevent layout shifts
+                      height:
+                          200, // Fixed height container to prevent layout shifts
                       child: GestureDetector(
                         onTap: () {
                           HapticFeedback.mediumImpact();
                           _showInformationDialog(context);
                         },
                         child: Stack(
-                          clipBehavior: Clip.none, // Allow overflow without affecting layout
+                          clipBehavior:
+                              Clip.none, // Allow overflow without affecting layout
                           alignment: Alignment.center,
                           children: [
                             // Waves container with fixed position, using RepaintBoundary for performance
@@ -182,53 +178,74 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                               child: Stack(
                                 clipBehavior: Clip.none,
                                 alignment: Alignment.center,
-                                children: _waves.map((wave) {
-                                  return AnimatedBuilder(
-                                    animation: _animationController,
-                                    builder: (context, child) {
-                                      // Calculate wave scale and opacity
-                                      double waveScale = wave['scale'] + 
-                                          sin(_animationController.value * pi * wave['speed']) * 0.1;
-                                      
-                                      double waveOpacity = wave['opacity'] * 
-                                          (1.0 - sin(_animationController.value * pi * wave['speed']) * 0.3);
-                                      
-                                      return Positioned(
-                                        // Center position for wave
-                                        top: 100 - (100 * waveScale),
-                                        left: 100 - (100 * waveScale),
-                                        // Fixed width container for wave
-                                        child: Opacity(
-                                          opacity: waveOpacity,
-                                          child: Container(
-                                            width: 200 * waveScale,
-                                            height: 200 * waveScale,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: Colors.white.withAlpha( (waveOpacity * 255).toInt()),
-                                                width: 2,
+                                children:
+                                    _waves.map((wave) {
+                                      return AnimatedBuilder(
+                                        animation: _animationController,
+                                        builder: (context, child) {
+                                          // Calculate wave scale and opacity
+                                          double waveScale =
+                                              wave['scale'] +
+                                              sin(
+                                                    _animationController.value *
+                                                        pi *
+                                                        wave['speed'],
+                                                  ) *
+                                                  0.1;
+
+                                          double waveOpacity =
+                                              wave['opacity'] *
+                                              (1.0 -
+                                                  sin(
+                                                        _animationController
+                                                                .value *
+                                                            pi *
+                                                            wave['speed'],
+                                                      ) *
+                                                      0.3);
+
+                                          return Positioned(
+                                            // Center position for wave
+                                            top: 100 - (100 * waveScale),
+                                            left: 100 - (100 * waveScale),
+                                            // Fixed width container for wave
+                                            child: Opacity(
+                                              opacity: waveOpacity,
+                                              child: Container(
+                                                width: 200 * waveScale,
+                                                height: 200 * waveScale,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    color: Colors.white
+                                                        .withAlpha(
+                                                          (waveOpacity * 255)
+                                                              .toInt(),
+                                                        ),
+                                                    width: 2,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ),
+                                          );
+                                        },
                                       );
-                                    },
-                                  );
-                                }).toList(),
+                                    }).toList(),
                               ),
                             ),
-                            
+
                             // Main icon container with fixed position
                             Container(
                               height: 160,
                               width: 160,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF221540), // Deep purple to match theme
+                                color: const Color(
+                                  0xFF221540,
+                                ), // Deep purple to match theme
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 77),
+                                    color: Colors.black.withAlpha(77),
                                     blurRadius: 15,
                                     spreadRadius: 2,
                                     offset: const Offset(0, 8),
@@ -246,8 +263,8 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                                       shape: BoxShape.circle,
                                       gradient: RadialGradient(
                                         colors: [
-                                          _accentPurple.withValues(alpha: 153),
-                                          _accentPurple.withValues(alpha: 77),
+                                          _accentPurple.withAlpha(153),
+                                          _accentPurple.withAlpha(77),
                                           Colors.transparent,
                                         ],
                                         stops: const [0.0, 0.5, 1.0],
@@ -264,11 +281,13 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                                           angle: _rotateAnimation.value,
                                           child: ShaderMask(
                                             shaderCallback:
-                                                (bounds) => const LinearGradient(
+                                                (
+                                                  bounds,
+                                                ) => const LinearGradient(
                                                   colors: [
-                                                    Colors.white, 
+                                                    Colors.white,
                                                     Color(0xFFC8B6EC),
-                                                    Colors.white
+                                                    Colors.white,
                                                   ],
                                                   begin: Alignment.topCenter,
                                                   end: Alignment.bottomCenter,
@@ -283,7 +302,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                                       },
                                     ),
                                   ),
-                                  
+
                                   // Static info icon without animation
                                   Positioned(
                                     right: 30,
@@ -292,7 +311,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                                       width: 20,
                                       height: 20,
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 77),
+                                        color: Colors.white.withAlpha(77),
                                         shape: BoxShape.circle,
                                         border: Border.all(
                                           color: Colors.white,
@@ -339,14 +358,14 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                         const SizedBox(height: 5),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16, 
-                            vertical: 8
+                            horizontal: 16,
+                            vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 51),
+                            color: Colors.white.withAlpha(51),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: 77),
+                              color: Colors.white.withAlpha(77),
                               width: 1,
                             ),
                           ),
@@ -355,7 +374,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Colors.white.withValues(alpha: 230),
+                              color: Colors.white.withAlpha(230),
                             ),
                           ),
                         ),
@@ -369,7 +388,10 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                   Center(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 500),
-                      transitionBuilder: (Widget child, Animation<double> animation) {
+                      transitionBuilder: (
+                        Widget child,
+                        Animation<double> animation,
+                      ) {
                         return FadeTransition(
                           opacity: animation,
                           child: SlideTransition(
@@ -385,14 +407,16 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                         key: ValueKey<bool>(_dhyanamStatus),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: _dhyanamStatus 
-                              ? const Color(0xFF2E7D32).withValues(alpha: 51) 
-                              : const Color(0xFFC62828).withValues(alpha: 51),
+                          color:
+                              _dhyanamStatus
+                                  ? const Color(0xFF2E7D32).withAlpha(51)
+                                  : const Color(0xFFC62828).withAlpha(51),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: _dhyanamStatus 
-                                ? const Color(0xFF2E7D32).withValues(alpha: 102) 
-                                : const Color(0xFFC62828).withValues(alpha: 102),
+                            color:
+                                _dhyanamStatus
+                                    ? const Color(0xFF2E7D32).withAlpha(102)
+                                    : const Color(0xFFC62828).withAlpha(102),
                             width: 1.5,
                           ),
                         ),
@@ -403,9 +427,10 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                               _dhyanamStatus
                                   ? Icons.check_circle
                                   : Icons.remove_circle_outline,
-                              color: _dhyanamStatus
-                                  ? const Color(0xFF4CAF50)
-                                  : const Color(0xFFE57373),
+                              color:
+                                  _dhyanamStatus
+                                      ? const Color(0xFF4CAF50)
+                                      : const Color(0xFFE57373),
                               size: 24,
                             ),
                             const SizedBox(width: 12),
@@ -416,7 +441,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                                     : 'You have not yet performed Dhyanam this month',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.white.withValues(alpha: 230),
+                                  color: Colors.white.withAlpha(230),
                                   fontWeight: FontWeight.w500,
                                 ),
                                 textAlign: TextAlign.center,
@@ -478,7 +503,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
 
                   // History section with improved design
                   _buildHistorySection(),
-                  
+
                   // Add padding at the bottom for better scrolling
                   const SizedBox(height: 20),
                 ],
@@ -489,7 +514,6 @@ class _DhyanamScreenState extends State<DhyanamScreen>
       ),
     );
   }
-
 
   Widget _buildMonthSelector() {
     return GlassmorphicContainer(
@@ -536,7 +560,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                 selectedYear.toString(),
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withValues(alpha: 204),
+                  color: Colors.white.withAlpha(204),
                 ),
               ),
             ],
@@ -585,12 +609,15 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 51),
+                  color: Colors.white.withAlpha(51),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 51),
+                    color: Colors.white.withAlpha(51),
                     width: 1,
                   ),
                 ),
@@ -599,7 +626,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 230),
+                    color: Colors.white.withAlpha(230),
                   ),
                 ),
               ),
@@ -646,26 +673,29 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         decoration: BoxDecoration(
-                          color: isCurrentMonth
-                              ? Colors.white.withValues(alpha: 77)
-                              : Colors.white.withValues(alpha: 26),
+                          color:
+                              isCurrentMonth
+                                  ? Colors.white.withAlpha(77)
+                                  : Colors.white.withAlpha(26),
                           borderRadius: BorderRadius.circular(12),
-                          border: isCurrentMonth
-                              ? Border.all(color: Colors.white, width: 2)
-                              : Border.all(
-                                  color: Colors.white.withValues(alpha: 51),
-                                  width: 1,
-                                ),
-                          boxShadow: isCurrentMonth
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 26),
-                                    blurRadius: 8,
-                                    spreadRadius: 0,
-                                    offset: const Offset(0, 2),
+                          border:
+                              isCurrentMonth
+                                  ? Border.all(color: Colors.white, width: 2)
+                                  : Border.all(
+                                    color: Colors.white.withAlpha(51),
+                                    width: 1,
                                   ),
-                                ]
-                              : null,
+                          boxShadow:
+                              isCurrentMonth
+                                  ? [
+                                    BoxShadow(
+                                      color: Colors.black.withAlpha(26),
+                                      blurRadius: 8,
+                                      spreadRadius: 0,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                  : null,
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -674,9 +704,10 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                               monthName,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: isCurrentMonth
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
+                                fontWeight:
+                                    isCurrentMonth
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                 fontSize: isCurrentMonth ? 16 : 14,
                               ),
                             ),
@@ -684,25 +715,27 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                             Container(
                               padding: const EdgeInsets.all(2),
                               decoration: BoxDecoration(
-                                color: isCompleted
-                                    ? const Color(0xFF4CAF50).withValues(alpha:
-                                        isCurrentMonth ? 102 : 51)
-                                    : Colors.white.withValues(alpha: 26),
+                                color:
+                                    isCompleted
+                                        ? const Color(
+                                          0xFF4CAF50,
+                                        ).withAlpha(isCurrentMonth ? 102 : 51)
+                                        : Colors.white.withAlpha(26),
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: isCompleted
-                                      ? const Color(0xFF4CAF50)
-                                      : Colors.white.withValues(alpha: 77),
+                                  color:
+                                      isCompleted
+                                          ? const Color(0xFF4CAF50)
+                                          : Colors.white.withAlpha(77),
                                   width: 1,
                                 ),
                               ),
                               child: Icon(
-                                isCompleted
-                                    ? Icons.check
-                                    : Icons.remove,
-                                color: isCompleted
-                                    ? const Color(0xFF4CAF50)
-                                    : Colors.white.withValues(alpha: 153),
+                                isCompleted ? Icons.check : Icons.remove,
+                                color:
+                                    isCompleted
+                                        ? const Color(0xFF4CAF50)
+                                        : Colors.white.withAlpha(153),
                                 size: 12,
                               ),
                             ),
@@ -725,12 +758,9 @@ class _DhyanamScreenState extends State<DhyanamScreen>
               Container(
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withValues(alpha: 51),
+                  color: const Color(0xFF4CAF50).withAlpha(51),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFF4CAF50),
-                    width: 1,
-                  ),
+                  border: Border.all(color: const Color(0xFF4CAF50), width: 1),
                 ),
                 child: const Icon(
                   Icons.check,
@@ -742,7 +772,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
               Text(
                 'Completed',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 204),
+                  color: Colors.white.withAlpha(204),
                   fontSize: 14,
                 ),
               ),
@@ -750,16 +780,16 @@ class _DhyanamScreenState extends State<DhyanamScreen>
               Container(
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 26),
+                  color: Colors.white.withAlpha(26),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 77),
+                    color: Colors.white.withAlpha(77),
                     width: 1,
                   ),
                 ),
                 child: Icon(
                   Icons.remove,
-                  color: Colors.white.withValues(alpha: 153),
+                  color: Colors.white.withAlpha(153),
                   size: 12,
                 ),
               ),
@@ -767,7 +797,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
               Text(
                 'Pending',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 204),
+                  color: Colors.white.withAlpha(204),
                   fontSize: 14,
                 ),
               ),
@@ -798,38 +828,40 @@ class _DhyanamScreenState extends State<DhyanamScreen>
               width: 130,
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: isSelected ? color : color.withValues(alpha: 51),
+                color: isSelected ? color : color.withAlpha(51),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected 
-                      ? Colors.white.withValues(alpha: 77) 
-                      : color.withValues(alpha: 77),
+                  color:
+                      isSelected
+                          ? Colors.white.withAlpha(77)
+                          : color.withAlpha(77),
                   width: 1.5,
                 ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: color.withValues(alpha: 102),
-                          blurRadius: 15,
-                          spreadRadius: 0,
-                          offset: const Offset(0, 5),
-                        ),
-                      ]
-                    : null,
+                boxShadow:
+                    isSelected
+                        ? [
+                          BoxShadow(
+                            color: color.withAlpha(102),
+                            blurRadius: 15,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 5),
+                          ),
+                        ]
+                        : null,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     icon,
-                    color: isSelected ? Colors.white : color.withValues(alpha: 204),
+                    color: isSelected ? Colors.white : color.withAlpha(204),
                     size: 28,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     title,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : color.withValues(alpha: 204),
+                      color: isSelected ? Colors.white : color.withAlpha(204),
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -863,12 +895,15 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 51),
+                  color: Colors.white.withAlpha(51),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 51),
+                    color: Colors.white.withAlpha(51),
                     width: 1,
                   ),
                 ),
@@ -878,7 +913,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                     Icon(
                       Icons.insights,
                       size: 14,
-                      color: Colors.white.withValues(alpha: 230),
+                      color: Colors.white.withAlpha(230),
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -886,7 +921,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 230),
+                        color: Colors.white.withAlpha(230),
                       ),
                     ),
                   ],
@@ -920,14 +955,11 @@ class _DhyanamScreenState extends State<DhyanamScreen>
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
-                color: Colors.white.withValues(alpha: 26),
+                color: Colors.white.withAlpha(26),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: Colors.white.withValues(alpha: 51),
-                    width: 1,
-                  ),
+                  side: BorderSide(color: Colors.white.withAlpha(51), width: 1),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
@@ -937,7 +969,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 38),
+                          color: Colors.white.withAlpha(38),
                           shape: BoxShape.circle,
                         ),
                         child: Text(
@@ -965,7 +997,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                             Text(
                               year.toString(),
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 179),
+                                color: Colors.white.withAlpha(179),
                                 fontSize: 14,
                               ),
                             ),
@@ -979,14 +1011,16 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: isCompleted
-                              ? const Color(0xFF4CAF50).withValues(alpha: 51)
-                              : const Color(0xFFE57373).withValues(alpha: 51),
+                          color:
+                              isCompleted
+                                  ? const Color(0xFF4CAF50).withAlpha(51)
+                                  : const Color(0xFFE57373).withAlpha(51),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isCompleted
-                                ? const Color(0xFF4CAF50).withValues(alpha: 102)
-                                : const Color(0xFFE57373).withValues(alpha: 102),
+                            color:
+                                isCompleted
+                                    ? const Color(0xFF4CAF50).withAlpha(102)
+                                    : const Color(0xFFE57373).withAlpha(102),
                             width: 1,
                           ),
                         ),
@@ -997,18 +1031,20 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                               isCompleted
                                   ? Icons.check_circle
                                   : Icons.cancel_outlined,
-                              color: isCompleted
-                                  ? const Color(0xFF4CAF50)
-                                  : const Color(0xFFE57373),
+                              color:
+                                  isCompleted
+                                      ? const Color(0xFF4CAF50)
+                                      : const Color(0xFFE57373),
                               size: 14,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               isCompleted ? 'Completed' : 'Missed',
                               style: TextStyle(
-                                color: isCompleted
-                                    ? const Color(0xFF4CAF50)
-                                    : const Color(0xFFE57373),
+                                color:
+                                    isCompleted
+                                        ? const Color(0xFF4CAF50)
+                                        : const Color(0xFFE57373),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -1078,17 +1114,17 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 230),
+                    color: Colors.white.withAlpha(230),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 51),
+                        color: Colors.black.withAlpha(51),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
                     ],
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 51),
+                      color: Colors.white.withAlpha(51),
                       width: 1.5,
                     ),
                   ),
@@ -1197,7 +1233,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
     // Load status for the currently selected month
     final provider = Provider.of<SadhanaProvider>(context, listen: false);
     provider.setActiveMonth(selectedYear, selectedMonth);
-    
+
     final monthKey = DateFormat(
       'MMMM yyyy',
     ).format(DateTime(selectedYear, selectedMonth));
@@ -1249,13 +1285,10 @@ class GlassmorphicContainer extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withAlpha((opacity * 255).toInt()),
             borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 51),
-              width: 1.5,
-            ),
+            border: Border.all(color: Colors.white.withAlpha(51), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 15),
+                color: Colors.black.withAlpha(15),
                 blurRadius: 8,
                 spreadRadius: 0,
               ),
@@ -1292,14 +1325,10 @@ class AnimatedIconButton extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 51),
+              color: Colors.white.withAlpha(51),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon, 
-              color: Colors.white,
-              size: size,
-            ),
+            child: Icon(icon, color: Colors.white, size: size),
           );
         },
       ),
