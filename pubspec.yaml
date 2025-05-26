@@ -49,6 +49,9 @@ dependencies:
   flutter_svg: ^2.0.7
   animations: ^2.0.7
   google_fonts: ^4.0.4
+  googleapis: ^11.4.0
+  googleapis_auth: ^1.4.1
+  http: ^1.1.0
 
   
 dev_dependencies:

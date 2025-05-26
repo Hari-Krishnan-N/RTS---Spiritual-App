@@ -17,22 +17,25 @@ class _StatusScreenState extends State<StatusScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-  // Enhanced Color Palette
-  static const Color primaryDeepBlue = Color(0xFF1A237E);
-  static const Color primaryIndigo = Color(0xFF3949AB);
-  static const Color accentGold = Color(0xFFFFB300);
-  static const Color accentLightGold = Color(0xFFFFCC02);
-  static const Color softTeal = Color(0xFF4DB6AC);
-  static const Color gentleOrange = Color(0xFFFF8A65);
-  static const Color lavenderPurple = Color(0xFF9575CD);
-  static const Color deepPurple = Color(0xFF512DA8);
-  static const Color successGreen = Color(0xFF66BB6A);
-  static const Color errorCoral = Color(0xFFEF5350);
-  static const Color cardBackground = Color(0x28FFFFFF); // White with 16% opacity
-  static const Color cardBorder = Color(0x40FFFFFF); // White with 25% opacity
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xCCFFFFFF); // White with 80% opacity
-  static const Color textTertiary = Color(0x99FFFFFF); // White with 60% opacity
+  // Profile Screen Theme Colors (matching profile_screen.dart)
+  static const Color _primaryDark = Color(0xFF0D2B3E);    // Deep teal/midnight blue
+  static const Color _primaryMedium = Color(0xFF1A4A6E);  // Medium teal blue
+  static const Color _primaryLight = Color(0xFF2A5E80);   // Slightly lighter blue
+  static const Color _accentColor = Color(0xFFD8B468);    // Gentle gold/amber
+  static const Color _accentLightGold = Color(0xFFDAB35C); // Slightly brighter gold
+  static const Color _accentDarkGold = Color(0xFFBE975B);  // Darker gold
+  static const Color _errorColor = Color(0xFFCF6679);     // Soft rose for errors
+  static const Color _textColor = Colors.white;
+  static const Color _textSecondary = Color(0xCCFFFFFF);  // White with 80% opacity
+  static const Color _textTertiary = Color(0x99FFFFFF);   // White with 60% opacity
+  static const Color _inputBgColor = Color(0x26FFFFFF);   // White with 15% opacity
+  static const Color _cardBorder = Color(0x40FFFFFF);     // White with 25% opacity
+  
+  // Additional colors for different statuses
+  static const Color _successGreen = Color(0xFF66BB6A);
+  static const Color _softTeal = Color(0xFF4DB6AC);
+  static const Color _gentleOrange = Color(0xFFFF8A65);
+  static const Color _lavenderPurple = Color(0xFF9575CD);
 
   @override
   void initState() {
@@ -72,16 +75,20 @@ class _StatusScreenState extends State<StatusScreen>
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
+            colors: [
+              _primaryDark,
+              _primaryMedium,
+              _primaryLight,
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              primaryDeepBlue,
-              primaryIndigo,
-              deepPurple,
-            ],
-            stops: [0.0, 0.6, 1.0],
+          ),
+          image: const DecorationImage(
+            image: AssetImage('assets/images/subtle_pattern.png'),
+            repeat: ImageRepeat.repeat,
+            opacity: 0.05,
           ),
         ),
         child: SafeArea(
@@ -106,7 +113,7 @@ class _StatusScreenState extends State<StatusScreen>
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: textPrimary,
+                                color: _textColor,
                                 letterSpacing: 1.5,
                                 shadows: [
                                   Shadow(
@@ -121,7 +128,7 @@ class _StatusScreenState extends State<StatusScreen>
                               'Track your spiritual journey',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: textSecondary,
+                                color: _textSecondary,
                                 fontWeight: FontWeight.w300,
                               ),
                             ),
@@ -133,10 +140,10 @@ class _StatusScreenState extends State<StatusScreen>
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: cardBackground,
+                            color: _inputBgColor,
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
-                              color: cardBorder,
+                              color: _cardBorder,
                               width: 1,
                             ),
                             boxShadow: [
@@ -152,7 +159,7 @@ class _StatusScreenState extends State<StatusScreen>
                               const Icon(
                                 Icons.calendar_today,
                                 size: 16,
-                                color: accentLightGold,
+                                color: _accentColor,
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -160,7 +167,7 @@ class _StatusScreenState extends State<StatusScreen>
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: textPrimary,
+                                  color: _textColor,
                                 ),
                               ),
                             ],
@@ -220,7 +227,7 @@ class _StatusScreenState extends State<StatusScreen>
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: textPrimary,
+                color: _textColor,
               ),
             ),
             const SizedBox(width: 12),
@@ -229,7 +236,7 @@ class _StatusScreenState extends State<StatusScreen>
                 height: 2,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [accentGold, Colors.transparent],
+                    colors: [_accentColor, Colors.transparent],
                     stops: const [0.0, 1.0],
                   ),
                 ),
@@ -254,8 +261,8 @@ class _StatusScreenState extends State<StatusScreen>
               title: 'Total Jebam',
               value: totalJebam.toString(),
               icon: Icons.format_list_numbered,
-              color: accentGold,
-              iconBackgroundColor: accentGold.withOpacity(0.2),
+              color: _accentColor,
+              iconBackgroundColor: _accentColor.withOpacity(0.2),
             ),
 
             // Total months active card
@@ -264,8 +271,8 @@ class _StatusScreenState extends State<StatusScreen>
               value:
                   '${completionStats.values.where((count) => count > 0).length}',
               icon: Icons.calendar_month,
-              color: softTeal,
-              iconBackgroundColor: softTeal.withOpacity(0.2),
+              color: _softTeal,
+              iconBackgroundColor: _softTeal.withOpacity(0.2),
             ),
 
             // Tharpanam completion rate
@@ -273,8 +280,8 @@ class _StatusScreenState extends State<StatusScreen>
               title: 'Tharpanam',
               value: '${(completionStats['tharpanam'] ?? 0)} times',
               icon: Icons.water_drop,
-              color: softTeal,
-              iconBackgroundColor: softTeal.withOpacity(0.2),
+              color: _softTeal,
+              iconBackgroundColor: _softTeal.withOpacity(0.2),
             ),
 
             // Homam completion rate
@@ -282,8 +289,8 @@ class _StatusScreenState extends State<StatusScreen>
               title: 'Homam',
               value: '${(completionStats['homam'] ?? 0)} times',
               icon: Icons.local_fire_department,
-              color: gentleOrange,
-              iconBackgroundColor: gentleOrange.withOpacity(0.2),
+              color: _gentleOrange,
+              iconBackgroundColor: _gentleOrange.withOpacity(0.2),
             ),
           ],
         ),
@@ -323,7 +330,7 @@ class _StatusScreenState extends State<StatusScreen>
               ),
               Icon(
                 Icons.trending_up,
-                color: textTertiary,
+                color: _textTertiary,
                 size: 16,
               ),
             ],
@@ -334,7 +341,7 @@ class _StatusScreenState extends State<StatusScreen>
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
-              color: textPrimary,
+              color: _textColor,
               shadows: [
                 Shadow(
                   color: Color(0x40000000),
@@ -349,7 +356,7 @@ class _StatusScreenState extends State<StatusScreen>
             title,
             style: const TextStyle(
               fontSize: 14,
-              color: textSecondary,
+              color: _textSecondary,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -374,7 +381,7 @@ class _StatusScreenState extends State<StatusScreen>
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: textPrimary,
+                color: _textColor,
               ),
             ),
             const SizedBox(width: 12),
@@ -383,7 +390,7 @@ class _StatusScreenState extends State<StatusScreen>
                 height: 2,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [accentGold, Colors.transparent],
+                    colors: [_accentColor, Colors.transparent],
                     stops: const [0.0, 1.0],
                   ),
                 ),
@@ -405,37 +412,37 @@ class _StatusScreenState extends State<StatusScreen>
                 value: jebamCount.toString(),
                 icon: Icons.format_list_numbered,
                 isCount: true,
-                color: accentGold,
+                color: _accentColor,
               ),
 
-              const Divider(color: cardBorder, height: 36),
+              const Divider(color: _cardBorder, height: 36),
 
               // Tharpanam status
               _buildStatusItem(
                 title: 'Tharpanam',
                 isCompleted: tharpanamStatus,
                 icon: Icons.water_drop,
-                color: softTeal,
+                color: _softTeal,
               ),
 
-              const Divider(color: cardBorder, height: 36),
+              const Divider(color: _cardBorder, height: 36),
 
               // Homam status
               _buildStatusItem(
                 title: 'Homam',
                 isCompleted: homamStatus,
                 icon: Icons.local_fire_department,
-                color: gentleOrange,
+                color: _gentleOrange,
               ),
 
-              const Divider(color: cardBorder, height: 36),
+              const Divider(color: _cardBorder, height: 36),
 
               // Dhyanam status
               _buildStatusItem(
                 title: 'Dhyanam',
                 isCompleted: dhyanamStatus,
                 icon: Icons.self_improvement,
-                color: lavenderPurple,
+                color: _lavenderPurple,
               ),
             ],
           ),
@@ -484,7 +491,7 @@ class _StatusScreenState extends State<StatusScreen>
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500,
-              color: textPrimary,
+              color: _textColor,
             ),
           ),
         ),
@@ -514,13 +521,13 @@ class _StatusScreenState extends State<StatusScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: (isCompleted! 
-                    ? successGreen 
-                    : errorCoral).withOpacity(0.15),
+                    ? _successGreen 
+                    : _errorColor).withOpacity(0.15),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: (isCompleted 
-                    ? successGreen 
-                    : errorCoral).withOpacity(0.3),
+                    ? _successGreen 
+                    : _errorColor).withOpacity(0.3),
                   width: 1.5,
                 ),
               ),
@@ -529,7 +536,7 @@ class _StatusScreenState extends State<StatusScreen>
                 children: [
                   Icon(
                     isCompleted ? Icons.check_circle : Icons.cancel,
-                    color: isCompleted ? successGreen : errorCoral,
+                    color: isCompleted ? _successGreen : _errorColor,
                     size: 18,
                   ),
                   const SizedBox(width: 6),
@@ -538,7 +545,7 @@ class _StatusScreenState extends State<StatusScreen>
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: isCompleted ? successGreen : errorCoral,
+                      color: isCompleted ? _successGreen : _errorColor,
                     ),
                   ),
                 ],
@@ -578,7 +585,7 @@ class _StatusScreenState extends State<StatusScreen>
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: textPrimary,
+                color: _textColor,
               ),
             ),
             const SizedBox(width: 12),
@@ -587,7 +594,7 @@ class _StatusScreenState extends State<StatusScreen>
                 height: 2,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [accentGold, Colors.transparent],
+                    colors: [_accentColor, Colors.transparent],
                     stops: const [0.0, 1.0],
                   ),
                 ),
@@ -608,7 +615,7 @@ class _StatusScreenState extends State<StatusScreen>
                   children: [
                     _buildMonthHistoryItem(monthlyData[index]),
                     if (index < monthlyData.length - 1)
-                      const Divider(color: cardBorder, height: 32),
+                      const Divider(color: _cardBorder, height: 32),
                   ],
                 ),
               ),
@@ -639,15 +646,15 @@ class _StatusScreenState extends State<StatusScreen>
     // Calculate progress color based on percentage
     Color progressColor;
     if (percentage == 100) {
-      progressColor = successGreen;
+      progressColor = _successGreen;
     } else if (percentage >= 75) {
-      progressColor = accentLightGold;
+      progressColor = _accentLightGold;
     } else if (percentage >= 50) {
-      progressColor = softTeal;
+      progressColor = _softTeal;
     } else if (percentage >= 25) {
-      progressColor = gentleOrange;
+      progressColor = _gentleOrange;
     } else {
-      progressColor = errorCoral;
+      progressColor = _errorColor;
     }
 
     return Row(
@@ -661,18 +668,18 @@ class _StatusScreenState extends State<StatusScreen>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                accentGold.withOpacity(0.2),
-                accentLightGold.withOpacity(0.1),
+                _accentColor.withOpacity(0.2),
+                _accentLightGold.withOpacity(0.1),
               ],
             ),
             shape: BoxShape.circle,
             border: Border.all(
-              color: accentGold.withOpacity(0.4),
+              color: _accentColor.withOpacity(0.4),
               width: 1.5
             ),
             boxShadow: [
               BoxShadow(
-                color: accentGold.withOpacity(0.2),
+                color: _accentColor.withOpacity(0.2),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -686,14 +693,14 @@ class _StatusScreenState extends State<StatusScreen>
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: textPrimary,
+                  color: _textColor,
                 ),
               ),
               Text(
                 year,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: textTertiary,
+                  color: _textTertiary,
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -728,25 +735,25 @@ class _StatusScreenState extends State<StatusScreen>
                   _buildStatusIcon(
                     tharpanamStatus,
                     Icons.water_drop,
-                    softTeal,
+                    _softTeal,
                   ),
                   const SizedBox(width: 14),
                   _buildStatusIcon(
                     homamStatus,
                     Icons.local_fire_department,
-                    gentleOrange,
+                    _gentleOrange,
                   ),
                   const SizedBox(width: 14),
                   _buildStatusIcon(
                     dhyanamStatus,
                     Icons.self_improvement,
-                    lavenderPurple,
+                    _lavenderPurple,
                   ),
                   const SizedBox(width: 14),
                   _buildStatusIcon(
                     jebamCount > 0,
                     Icons.format_list_numbered,
-                    accentGold,
+                    _accentColor,
                   ),
                 ],
               ),
@@ -823,10 +830,10 @@ class _StatusScreenState extends State<StatusScreen>
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            color: cardBackground,
+            color: _inputBgColor,
             borderRadius: BorderRadius.circular(borderRadius),
             border: Border.all(
-              color: cardBorder,
+              color: _cardBorder,
               width: 1.5,
             ),
             boxShadow: [
