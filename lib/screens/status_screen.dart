@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui'; // Import for ImageFilter
 import '../providers/sadhana_provider.dart';
-import '../utils/app_theme.dart';
 
 class StatusScreen extends StatefulWidget {
   const StatusScreen({super.key});
@@ -23,7 +22,6 @@ class _StatusScreenState extends State<StatusScreen>
   static const Color _primaryLight = Color(0xFF2A5E80);   // Slightly lighter blue
   static const Color _accentColor = Color(0xFFD8B468);    // Gentle gold/amber
   static const Color _accentLightGold = Color(0xFFDAB35C); // Slightly brighter gold
-  static const Color _accentDarkGold = Color(0xFFBE975B);  // Darker gold
   static const Color _errorColor = Color(0xFFCF6679);     // Soft rose for errors
   static const Color _textColor = Colors.white;
   static const Color _textSecondary = Color(0xCCFFFFFF);  // White with 80% opacity
@@ -64,7 +62,7 @@ class _StatusScreenState extends State<StatusScreen>
     final jebamCount = provider.jebamCount;
     final tharpanamStatus = provider.tharpanamStatus;
     final homamStatus = provider.homamStatus;
-    final dhyanamStatus = provider.dhyanamStatus;
+    final dhaanamStatus = provider.dhaanamStatus;
 
     // Get current month
     final currentMonth = DateFormat('MMMM yyyy').format(DateTime.now());
@@ -192,7 +190,7 @@ class _StatusScreenState extends State<StatusScreen>
                       jebamCount,
                       tharpanamStatus,
                       homamStatus,
-                      dhyanamStatus,
+                      dhaanamStatus,
                     ),
 
                     const SizedBox(height: 32),
@@ -369,7 +367,7 @@ class _StatusScreenState extends State<StatusScreen>
     int jebamCount,
     bool tharpanamStatus,
     bool homamStatus,
-    bool dhyanamStatus,
+    bool dhaanamStatus,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,11 +435,11 @@ class _StatusScreenState extends State<StatusScreen>
 
               const Divider(color: _cardBorder, height: 36),
 
-              // Dhyanam status
+              // Dhaanam status
               _buildStatusItem(
-                title: 'Dhyanam',
-                isCompleted: dhyanamStatus,
-                icon: Icons.self_improvement,
+                title: 'Dhaanam',
+                isCompleted: dhaanamStatus,
+                icon: Icons.spa_rounded,
                 color: _lavenderPurple,
               ),
             ],
@@ -629,7 +627,7 @@ class _StatusScreenState extends State<StatusScreen>
   Widget _buildMonthHistoryItem(Map<String, dynamic> monthData) {
     final bool tharpanamStatus = monthData['tharpanamStatus'] ?? false;
     final bool homamStatus = monthData['homamStatus'] ?? false;
-    final bool dhyanamStatus = monthData['dhyanamStatus'] ?? false;
+    final bool dhaanamStatus = monthData['dhaanamStatus'] ?? false;
     final int jebamCount = monthData['jebamCount'] ?? 0;
     final String monthName = monthData['monthName'] ?? '';
     final String year = monthData['year'] ?? '';
@@ -638,7 +636,7 @@ class _StatusScreenState extends State<StatusScreen>
     int completedCount = 0;
     if (tharpanamStatus) completedCount++;
     if (homamStatus) completedCount++;
-    if (dhyanamStatus) completedCount++;
+    if (dhaanamStatus) completedCount++;
     if (jebamCount > 0) completedCount++;
 
     final int percentage = (completedCount / 4 * 100).round();
@@ -745,8 +743,8 @@ class _StatusScreenState extends State<StatusScreen>
                   ),
                   const SizedBox(width: 14),
                   _buildStatusIcon(
-                    dhyanamStatus,
-                    Icons.self_improvement,
+                    dhaanamStatus,
+                    Icons.spa_rounded,
                     _lavenderPurple,
                   ),
                   const SizedBox(width: 14),

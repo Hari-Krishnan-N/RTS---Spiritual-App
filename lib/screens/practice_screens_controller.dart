@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import '../screens/jebam_screen.dart';
 import '../screens/tharpanam_screen.dart';
 import '../screens/homam_screen.dart';
-import '../screens/dhyanam_screen.dart';
+import '../screens/dhaanam_screen.dart';
 
 class PracticeScreensController extends StatefulWidget {
   final int initialPage;
@@ -39,8 +39,8 @@ class _PracticeScreensControllerState extends State<PracticeScreensController> {
       'icon': Icons.local_fire_department_rounded,
     },
     {
-      'title': 'DHYANAM',
-      'screen': const DhyanamScreen(),
+      'title': 'DHAANAM',
+      'screen': const DhaanamScreen(),
       'icon': Icons.spa_rounded,
     },
   ];

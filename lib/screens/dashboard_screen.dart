@@ -581,7 +581,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                       ),
                     ),
 
-                    // Dhanam card with SWAPPED colors (now using muted purple)
+                    // Dhaanam card with SWAPPED colors (now using muted purple) and updated description
                     AnimatedBuilder(
                       animation: _itemsAnimation,
                       builder: (context, child) {
@@ -595,7 +595,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                       },
                       child: PracticeTile(
                         title: 'Dhanam',
-                        description: 'Meditation tracker',
+                        description: 'Charity & giving tracker',
                         icon: Icons.spa_rounded,
                         gradientColors: const [
                           Color(0xFF362358), // Deep muted purple
@@ -606,7 +606,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                         onTap:
                             () => _navigateToPractice(
                               context,
-                              3, // Index for DhyanamScreen
+                              3, // Index for DhaanamScreen
                             ),
                       ),
                     ),

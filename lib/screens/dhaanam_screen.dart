@@ -6,21 +6,21 @@ import 'dart:ui';
 import 'dart:math';
 import '../providers/sadhana_provider.dart';
 
-class DhyanamScreen extends StatefulWidget {
-  const DhyanamScreen({super.key});
+class DhaanamScreen extends StatefulWidget {
+  const DhaanamScreen({super.key});
 
   @override
-  State<DhyanamScreen> createState() => _DhyanamScreenState();
+  State<DhaanamScreen> createState() => _DhaanamScreenState();
 }
 
-class _DhyanamScreenState extends State<DhyanamScreen>
+class _DhaanamScreenState extends State<DhaanamScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _rotateAnimation;
 
   int selectedMonth = DateTime.now().month;
   int selectedYear = DateTime.now().year;
-  bool _dhyanamStatus = false;
+  bool _dhaanamStatus = false;
 
   // Wave animation variables
   final List<Map<String, dynamic>> _waves = [];
@@ -56,7 +56,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<SadhanaProvider>(context, listen: false);
       setState(() {
-        _dhyanamStatus = provider.dhyanamStatus;
+        _dhaanamStatus = provider.dhaanamStatus;
       });
 
       // Set animation to repeat with slower speed for stability
@@ -105,7 +105,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          'DHYANAM',
+          'DHAANAM',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
@@ -272,7 +272,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                                     ),
                                   ),
 
-                                  // ONLY the meditation icon gets animated with RepaintBoundary
+                                  // ONLY the charity icon gets animated with RepaintBoundary
                                   RepaintBoundary(
                                     child: AnimatedBuilder(
                                       animation: _rotateAnimation,
@@ -293,7 +293,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                                                   end: Alignment.bottomCenter,
                                                 ).createShader(bounds),
                                             child: const Icon(
-                                              Icons.self_improvement,
+                                              Icons.spa_rounded,
                                               size: 80,
                                               color: Colors.white,
                                             ),
@@ -341,7 +341,7 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                     child: Column(
                       children: [
                         const Text(
-                          'Dhyanam Status',
+                          'Dhaanam Status',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -404,17 +404,17 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                         );
                       },
                       child: Container(
-                        key: ValueKey<bool>(_dhyanamStatus),
+                        key: ValueKey<bool>(_dhaanamStatus),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color:
-                              _dhyanamStatus
+                              _dhaanamStatus
                                   ? const Color(0xFF2E7D32).withAlpha(51)
                                   : const Color(0xFFC62828).withAlpha(51),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color:
-                                _dhyanamStatus
+                                _dhaanamStatus
                                     ? const Color(0xFF2E7D32).withAlpha(102)
                                     : const Color(0xFFC62828).withAlpha(102),
                             width: 1.5,
@@ -424,11 +424,11 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              _dhyanamStatus
+                              _dhaanamStatus
                                   ? Icons.check_circle
                                   : Icons.remove_circle_outline,
                               color:
-                                  _dhyanamStatus
+                                  _dhaanamStatus
                                       ? const Color(0xFF4CAF50)
                                       : const Color(0xFFE57373),
                               size: 24,
@@ -436,9 +436,9 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                             const SizedBox(width: 12),
                             Flexible(
                               child: Text(
-                                _dhyanamStatus
-                                    ? 'You have performed Dhyanam this month'
-                                    : 'You have not yet performed Dhyanam this month',
+                                _dhaanamStatus
+                                    ? 'You have performed Dhaanam this month'
+                                    : 'You have not yet performed Dhaanam this month',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.white.withAlpha(230),
@@ -464,13 +464,13 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                         title: 'YES',
                         icon: Icons.check_circle_outline,
                         color: const Color(0xFF4CAF50), // Brighter green
-                        isSelected: _dhyanamStatus,
+                        isSelected: _dhaanamStatus,
                         onTap: () {
                           HapticFeedback.mediumImpact();
                           setState(() {
-                            _dhyanamStatus = true;
+                            _dhaanamStatus = true;
                           });
-                          provider.updateDhyanamStatus(true);
+                          provider.updateDhaanamStatus(true);
 
                           // Show confirmation animation
                           _showStatusUpdateConfirmation(context, true);
@@ -484,13 +484,13 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                         title: 'NO',
                         icon: Icons.cancel_outlined,
                         color: const Color(0xFFE57373), // Softer red
-                        isSelected: !_dhyanamStatus,
+                        isSelected: !_dhaanamStatus,
                         onTap: () {
                           HapticFeedback.mediumImpact();
                           setState(() {
-                            _dhyanamStatus = false;
+                            _dhaanamStatus = false;
                           });
-                          provider.updateDhyanamStatus(false);
+                          provider.updateDhaanamStatus(false);
 
                           // Show confirmation animation
                           _showStatusUpdateConfirmation(context, false);
@@ -1076,8 +1076,8 @@ class _DhyanamScreenState extends State<DhyanamScreen>
             Flexible(
               child: Text(
                 isCompleted
-                    ? 'Dhyanam marked as completed for ${DateFormat('MMMM').format(DateTime(selectedYear, selectedMonth))}'
-                    : 'Dhyanam marked as not completed for ${DateFormat('MMMM').format(DateTime(selectedYear, selectedMonth))}',
+                    ? 'Dhaanam marked as completed for ${DateFormat('MMMM').format(DateTime(selectedYear, selectedMonth))}'
+                    : 'Dhaanam marked as not completed for ${DateFormat('MMMM').format(DateTime(selectedYear, selectedMonth))}',
                 style: const TextStyle(fontSize: 16),
               ),
             ),
@@ -1138,14 +1138,14 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          Icons.self_improvement,
+                          Icons.spa_rounded,
                           color: Colors.white,
                           size: 32,
                         ),
                       ),
                       const SizedBox(height: 20),
                       const Text(
-                        'About Dhyanam',
+                        'About Dhaanam',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -1154,8 +1154,9 @@ class _DhyanamScreenState extends State<DhyanamScreen>
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Dhyanam is the Sanskrit term for meditation, a profound practice of mental focus and contemplation. '
-                        'It aims to quiet the mind, deepen awareness, and connect with your inner self.',
+                        'Dhaanam is the Sanskrit term for charitable giving and donation. '
+                        'It represents the act of selfless giving to support others in need, '
+                        'cultivate generosity, and create positive karma through compassionate action.',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.black87,
@@ -1222,8 +1223,8 @@ class _DhyanamScreenState extends State<DhyanamScreen>
     final monthKey = DateFormat('MMMM yyyy').format(DateTime(year, month));
     final monthData = provider.getMonthData(monthKey);
 
-    if (monthData != null && monthData.containsKey('dhyanamStatus')) {
-      return monthData['dhyanamStatus'] as bool;
+    if (monthData != null && monthData.containsKey('dhaanamStatus')) {
+      return monthData['dhaanamStatus'] as bool;
     }
 
     return false;
@@ -1239,13 +1240,13 @@ class _DhyanamScreenState extends State<DhyanamScreen>
     ).format(DateTime(selectedYear, selectedMonth));
     final monthData = provider.getMonthData(monthKey);
 
-    if (monthData != null && monthData.containsKey('dhyanamStatus')) {
+    if (monthData != null && monthData.containsKey('dhaanamStatus')) {
       setState(() {
-        _dhyanamStatus = monthData['dhyanamStatus'] as bool;
+        _dhaanamStatus = monthData['dhaanamStatus'] as bool;
       });
     } else {
       setState(() {
-        _dhyanamStatus = false;
+        _dhaanamStatus = false;
       });
     }
   }

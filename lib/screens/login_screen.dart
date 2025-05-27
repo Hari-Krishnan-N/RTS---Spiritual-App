@@ -65,6 +65,10 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final sadhanaProvider = Provider.of<SadhanaProvider>(context);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenHeight < 700;
+    final isVerySmallScreen = screenHeight < 600;
 
     // Check if already logged in
     if (sadhanaProvider.isLoggedIn) {
@@ -92,438 +96,478 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 28.0,
-                vertical: 40.0,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // App title with animation
-                  AnimatedBuilder(
-                    animation: _logoAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _logoAnimation.value,
-                        child: child,
-                      );
-                    },
-                    child: ShaderMask(
-                      shaderCallback: (Rect bounds) {
-                        return LinearGradient(
-                          colors: [_textColor, Color.fromRGBO(_textColor.red, _textColor.green, _textColor.blue, 0.7)],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ).createShader(bounds);
-                      },
-                      child: const Text(
-                        "Rhythmbhara Tara Sadhana",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 1.2,
-                          shadows: [
-                            Shadow(
-                              color: Color(0x40000000),
-                              blurRadius: 5,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
                   ),
-
-                  const SizedBox(height: 40),
-
-                  // Deity silhouette with animation and glow effect
-                  AnimatedBuilder(
-                    animation: _logoAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _logoAnimation.value,
-                        child: Opacity(
-                          opacity: _logoAnimation.value,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      alignment: Alignment.center,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.08, // 8% of screen width
+                      vertical: isVerySmallScreen ? 12.0 : 20.0,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Outer glow
-                        Container(
-                          height: 220,
-                          width: 220,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: RadialGradient(
-                              colors: [
-                                _accentColor.withAlpha(60),
-                                _accentColor.withAlpha(20),
-                                Colors.transparent,
-                              ],
-                              stops: const [0.4, 0.7, 1.0],
-                            ),
-                          ),
-                        ),
-                        
-                        // Main circle container
-                        Container(
-                          height: 180,
-                          width: 180,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0A1922),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              // Inner subtle glow
-                              BoxShadow(
-                                color: _accentColor.withAlpha(60),
-                                blurRadius: 15,
-                                spreadRadius: -2,
-                              ),
-                              // Outer shadow
-                              const BoxShadow(
-                                color: Color(0x66000000),
-                                blurRadius: 25,
-                                spreadRadius: 2,
-                                offset: Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: ShaderMask(
-                              shaderCallback: (bounds) => LinearGradient(
-                                colors: [
-                                  _accentColor,
-                                  const Color(0xFFE8CFA3), // Lighter gold
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ).createShader(bounds),
-                              child: const Icon(
-                                Icons.self_improvement,
-                                size: 110,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 50),
-
-                  // Login Form with animation and enhanced glassmorphism
-                  AnimatedBuilder(
-                    animation: _formAnimation,
-                    builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(0, 50 * (1 - _formAnimation.value)),
-                        child: Opacity(
-                          opacity: _formAnimation.value,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: _buildGlassmorphicCard(
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
+                        // Top section with logo and title
+                        Column(
                           children: [
-                            // Welcome text with enhanced typography
-                            RichText(
-                              text: TextSpan(
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
+                            SizedBox(height: screenHeight * 0.01), // 1% of screen height
+                            
+                            // App title with animation - more compact
+                            AnimatedBuilder(
+                              animation: _logoAnimation,
+                              builder: (context, child) {
+                                return Transform.scale(
+                                  scale: _logoAnimation.value,
+                                  child: child,
+                                );
+                              },
+                              child: ShaderMask(
+                                shaderCallback: (Rect bounds) {
+                                  return LinearGradient(
+                                    colors: [_textColor, Color.fromRGBO(_textColor.red, _textColor.green, _textColor.blue, 0.7)],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ).createShader(bounds);
+                                },
+                                child: Text(
+                                  "Rhythmbhara Tara Sadhana",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: isVerySmallScreen ? 20 : (isSmallScreen ? 24 : 28),
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 1.2,
+                                    shadows: const [
+                                      Shadow(
+                                        color: Color(0x40000000),
+                                        blurRadius: 5,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                children: [
-                                  const TextSpan(text: "Welcome "),
-                                  TextSpan(
-                                    text: "Back",
-                                    style: TextStyle(
-                                      color: _accentColor,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.5,
-                                      shadows: const [
-                                        Shadow(
-                                          color: Color(0x4D000000),
-                                          offset: Offset(1, 1),
-                                          blurRadius: 3,
+                              ),
+                            ),
+
+                            SizedBox(height: screenHeight * 0.02), // 2% of screen height
+
+                            // Deity silhouette with responsive size
+                            AnimatedBuilder(
+                              animation: _logoAnimation,
+                              builder: (context, child) {
+                                return Transform.scale(
+                                  scale: _logoAnimation.value,
+                                  child: Opacity(
+                                    opacity: _logoAnimation.value,
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: _buildCompactLogo(isVerySmallScreen, isSmallScreen),
+                            ),
+                          ],
+                        ),
+
+                        // Middle section with form
+                        Column(
+                          children: [
+                            SizedBox(height: screenHeight * 0.02), // 2% of screen height
+
+                            // Login Form with animation and enhanced glassmorphism
+                            AnimatedBuilder(
+                              animation: _formAnimation,
+                              builder: (context, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, 30 * (1 - _formAnimation.value)),
+                                  child: Opacity(
+                                    opacity: _formAnimation.value,
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: _buildCompactGlassmorphicCard(
+                                isSmallScreen: isSmallScreen,
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    children: [
+                                      // Welcome text with enhanced typography
+                                      RichText(
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: isSmallScreen ? 20 : 24,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.5,
+                                          ),
+                                          children: [
+                                            const TextSpan(text: "Welcome "),
+                                            TextSpan(
+                                              text: "Back",
+                                              style: TextStyle(
+                                                color: _accentColor,
+                                                fontSize: isSmallScreen ? 20 : 24,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 0.5,
+                                                shadows: const [
+                                                  Shadow(
+                                                    color: Color(0x4D000000),
+                                                    offset: Offset(1, 1),
+                                                    blurRadius: 3,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
+
+                                      SizedBox(height: isSmallScreen ? 4 : 8),
+
+                                      // Subtitle with softer color
+                                      Text(
+                                        "Sign in to continue your spiritual journey",
+                                        style: TextStyle(
+                                          fontSize: isSmallScreen ? 12 : 14,
+                                          color: const Color(0xB3FFFFFF), // White with 70% opacity
+                                        ),
+                                      ),
+
+                                      SizedBox(height: isSmallScreen ? 20 : 28),
+
+                                      // Enhanced Email field with focus effect
+                                      Focus(
+                                        onFocusChange: (hasFocus) {
+                                          setState(() {
+                                            _isEmailFocused = hasFocus;
+                                          });
+                                        },
+                                        child: _buildCompactTextFormField(
+                                          controller: _emailController,
+                                          isPasswordField: false,
+                                          isFocused: _isEmailFocused,
+                                          isSmallScreen: isSmallScreen,
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter your email';
+                                            }
+                                            if (!RegExp(
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                            ).hasMatch(value)) {
+                                              return 'Please enter a valid email';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ),
+
+                                      SizedBox(height: isSmallScreen ? 12 : 16),
+
+                                      // Enhanced Password field with focus effect
+                                      Focus(
+                                        onFocusChange: (hasFocus) {
+                                          setState(() {
+                                            _isPasswordFocused = hasFocus;
+                                          });
+                                        },
+                                        child: _buildCompactTextFormField(
+                                          controller: _passwordController,
+                                          isPasswordField: true,
+                                          isFocused: _isPasswordFocused,
+                                          isSmallScreen: isSmallScreen,
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Please enter your password';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ),
+
+                                      SizedBox(height: isSmallScreen ? 8 : 12),
+
+                                      // Forgot password with improved tap area
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              PageRouteBuilder(
+                                                pageBuilder: (context, animation, secondaryAnimation) => 
+                                                    const ForgotPasswordScreen(),
+                                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                                  return FadeTransition(
+                                                    opacity: animation,
+                                                    child: child,
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Forgot Password?',
+                                              style: TextStyle(
+                                                color: _accentColor,
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: isSmallScreen ? 12 : 14,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                      SizedBox(height: isSmallScreen ? 20 : 28),
+
+                                      // Enhanced login button with gradient and animation
+                                      _buildCompactPrimaryButton(
+                                        isLoading: sadhanaProvider.isLoading,
+                                        onPressed: sadhanaProvider.isLoading
+                                            ? null
+                                            : () => _performLogin(context),
+                                        label: 'Login',
+                                        icon: Icons.arrow_forward,
+                                        isSmallScreen: isSmallScreen,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Bottom section with social login and signup
+                        Column(
+                          children: [
+                            SizedBox(height: screenHeight * 0.015), // 1.5% of screen height
+
+                            // Animated divider with improved style
+                            FadeTransition(
+                              opacity: _formAnimation,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8.0 : 12.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        height: 1.5,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.white.withAlpha(0),
+                                              Colors.white.withAlpha(204), // White with 80% opacity
+                                            ],
+                                            begin: Alignment.centerLeft,
+                                            end: Alignment.centerRight,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                      child: Text(
+                                        "OR",
+                                        style: TextStyle(
+                                          color: Color.fromRGBO(_textColor.red, _textColor.green, _textColor.blue, 0.9),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: isSmallScreen ? 12 : 14,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        height: 1.5,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.white.withAlpha(204), // White with 80% opacity
+                                              Colors.white.withAlpha(0),
+                                            ],
+                                            begin: Alignment.centerLeft,
+                                            end: Alignment.centerRight,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Enhanced Google Sign-In Button
+                            FadeTransition(
+                              opacity: _formAnimation,
+                              child: _buildCompactSocialLoginButton(
+                                isLoading: sadhanaProvider.isLoading,
+                                onPressed: sadhanaProvider.isLoading
+                                    ? null
+                                    : () => _signInWithGoogle(context),
+                                label: "Sign in with Google",
+                                logoAsset: 'assets/images/google_logo.png',
+                                isSmallScreen: isSmallScreen,
+                              ),
+                            ),
+
+                            SizedBox(height: screenHeight * 0.015), // 1.5% of screen height
+
+                            // Enhanced Sign Up Link with animation
+                            FadeTransition(
+                              opacity: _formAnimation,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Don't have an account? ",
+                                    style: TextStyle(
+                                      color: Color.fromRGBO(_textColor.red, _textColor.green, _textColor.blue, 0.9),
+                                      fontSize: isSmallScreen ? 14 : 16,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation, secondaryAnimation) =>
+                                              const SignupScreen(),
+                                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                            return SharedAxisTransition(
+                                              animation: animation,
+                                              secondaryAnimation: secondaryAnimation,
+                                              transitionType: SharedAxisTransitionType.horizontal,
+                                              child: child,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      "Sign Up",
+                                      style: TextStyle(
+                                        color: _accentColor,
+                                        fontSize: isSmallScreen ? 14 : 16,
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: _accentColor,
+                                        shadows: const [
+                                          Shadow(
+                                            color: Color(0x4D000000),
+                                            offset: Offset(1, 1),
+                                            blurRadius: 2,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
 
-                            const SizedBox(height: 8),
-
-                            // Subtitle with softer color
-                            const Text(
-                              "Sign in to continue your spiritual journey",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color(0xB3FFFFFF), // White with 70% opacity
-                              ),
-                            ),
-
-                            const SizedBox(height: 36),
-
-                            // Enhanced Email field with focus effect
-                            Focus(
-                              onFocusChange: (hasFocus) {
-                                setState(() {
-                                  _isEmailFocused = hasFocus;
-                                });
-                              },
-                              child: _buildTextFormField(
-                                controller: _emailController,
-                                isPasswordField: false,
-                                isFocused: _isEmailFocused,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your email';
-                                  }
-                                  if (!RegExp(
-                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                                  ).hasMatch(value)) {
-                                    return 'Please enter a valid email';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // Enhanced Password field with focus effect
-                            Focus(
-                              onFocusChange: (hasFocus) {
-                                setState(() {
-                                  _isPasswordFocused = hasFocus;
-                                });
-                              },
-                              child: _buildTextFormField(
-                                controller: _passwordController,
-                                isPasswordField: true,
-                                isFocused: _isPasswordFocused,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your password';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            // Forgot password with improved tap area
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation, secondaryAnimation) => 
-                                          const ForgotPasswordScreen(),
-                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                        return FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Forgot Password?',
-                                    style: TextStyle(
-                                      color: _accentColor,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 36),
-
-                            // Enhanced login button with gradient and animation
-                            _buildPrimaryButton(
-                              isLoading: sadhanaProvider.isLoading,
-                              onPressed: sadhanaProvider.isLoading
-                                  ? null
-                                  : () => _performLogin(context),
-                              label: 'Login',
-                              icon: Icons.arrow_forward,
-                            ),
+                            SizedBox(height: screenHeight * 0.01), // 1% of screen height
                           ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Animated divider with improved style
-                  FadeTransition(
-                    opacity: _formAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 1.5,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.white.withAlpha(0),
-                                    Colors.white.withAlpha(204), // White with 80% opacity
-                                  ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text(
-                              "OR",
-                              style: TextStyle(
-                                color: Color.fromRGBO(_textColor.red, _textColor.green, _textColor.blue, 0.9),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              height: 1.5,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.white.withAlpha(204), // White with 80% opacity
-                                    Colors.white.withAlpha(0),
-                                  ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Enhanced Google Sign-In Button
-                  FadeTransition(
-                    opacity: _formAnimation,
-                    child: _buildSocialLoginButton(
-                      isLoading: sadhanaProvider.isLoading,
-                      onPressed: sadhanaProvider.isLoading
-                          ? null
-                          : () => _signInWithGoogle(context),
-                      label: "Sign in with Google",
-                      logoAsset: 'assets/images/google_logo.png',
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Enhanced Sign Up Link with animation
-                  FadeTransition(
-                    opacity: _formAnimation,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Don't have an account? ",
-                          style: TextStyle(
-                            color: Color.fromRGBO(_textColor.red, _textColor.green, _textColor.blue, 0.9),
-                            fontSize: 16,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    const SignupScreen(),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                  return SharedAxisTransition(
-                                    animation: animation,
-                                    secondaryAnimation: secondaryAnimation,
-                                    transitionType: SharedAxisTransitionType.horizontal,
-                                    child: child,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          child: Text(
-                            "Sign Up",
-                            style: TextStyle(
-                              color: _accentColor,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
-                              decorationColor: _accentColor,
-                              shadows: const [
-                                Shadow(
-                                  color: Color(0x4D000000),
-                                  offset: Offset(1, 1),
-                                  blurRadius: 2,
-                                ),
-                              ],
-                            ),
-                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
     );
   }
+
+  // Compact logo builder
+  Widget _buildCompactLogo(bool isVerySmallScreen, bool isSmallScreen) {
+    final logoSize = isVerySmallScreen ? 100.0 : (isSmallScreen ? 130.0 : 160.0);
+    final glowSize = logoSize + 40;
+    final iconSize = logoSize * 0.6;
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Outer glow
+        Container(
+          height: glowSize,
+          width: glowSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                _accentColor.withAlpha(60),
+                _accentColor.withAlpha(20),
+                Colors.transparent,
+              ],
+              stops: const [0.4, 0.7, 1.0],
+            ),
+          ),
+        ),
+        
+        // Main circle container
+        Container(
+          height: logoSize,
+          width: logoSize,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0A1922),
+            shape: BoxShape.circle,
+            boxShadow: [
+              // Inner subtle glow
+              BoxShadow(
+                color: _accentColor.withAlpha(60),
+                blurRadius: 15,
+                spreadRadius: -2,
+              ),
+              // Outer shadow
+              const BoxShadow(
+                color: Color(0x66000000),
+                blurRadius: 25,
+                spreadRadius: 2,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Center(
+            child: ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [
+                  _accentColor,
+                  const Color(0xFFE8CFA3), // Lighter gold
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Icon(
+                Icons.self_improvement,
+                size: iconSize,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
   
-  // Reusable glassmorphic card builder
-  Widget _buildGlassmorphicCard({required Widget child}) {
+  // Compact glassmorphic card builder
+  Widget _buildCompactGlassmorphicCard({required Widget child, required bool isSmallScreen}) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          padding: const EdgeInsets.all(30),
+          padding: EdgeInsets.all(isSmallScreen ? 20 : 24),
           decoration: BoxDecoration(
             color: const Color(0x26FFFFFF), // White with 15% opacity
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: const Color(0x33FFFFFF), // White with 20% opacity
               width: 1.5,
@@ -543,18 +587,19 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  // Reusable text form field builder
-  Widget _buildTextFormField({
+  // Compact text form field builder
+  Widget _buildCompactTextFormField({
     required TextEditingController controller,
     required bool isPasswordField,
     required bool isFocused,
+    required bool isSmallScreen,
     required String? Function(String?)? validator,
   }) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
         color: _inputBgColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isFocused ? _focusedBorderColor : _unfocusedBorderColor,
           width: isFocused ? 2.0 : 1.0,
@@ -585,7 +630,7 @@ class _LoginScreenState extends State<LoginScreen>
           prefixIcon: Icon(
             isPasswordField ? Icons.lock_outline : Icons.email_outlined,
             color: isFocused ? _accentColor : Colors.white,
-            size: 22,
+            size: isSmallScreen ? 20 : 22,
           ),
           suffixIcon: isPasswordField
               ? IconButton(
@@ -594,7 +639,7 @@ class _LoginScreenState extends State<LoginScreen>
                         ? Icons.visibility_off
                         : Icons.visibility,
                     color: isFocused ? _accentColor : Colors.white,
-                    size: 22,
+                    size: isSmallScreen ? 20 : 22,
                   ),
                   onPressed: () {
                     setState(() {
@@ -604,22 +649,22 @@ class _LoginScreenState extends State<LoginScreen>
                 )
               : null,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
               color: _errorColor,
               width: 1.5,
             ),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
               color: _errorColor,
               width: 1.5,
@@ -627,15 +672,15 @@ class _LoginScreenState extends State<LoginScreen>
           ),
           errorStyle: TextStyle(
             color: _errorColor,
-            fontSize: 12,
+            fontSize: isSmallScreen ? 11 : 12,
           ),
           filled: false,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 18,
+          contentPadding: EdgeInsets.symmetric(
+            vertical: isSmallScreen ? 14 : 16,
           ),
         ),
-        style: const TextStyle(
-          fontSize: 16,
+        style: TextStyle(
+          fontSize: isSmallScreen ? 14 : 16,
           color: Colors.white,
         ),
         obscureText: isPasswordField && !_isPasswordVisible,
@@ -644,16 +689,17 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
   
-  // Reusable primary button builder
-  Widget _buildPrimaryButton({
+  // Compact primary button builder
+  Widget _buildCompactPrimaryButton({
     required bool isLoading,
     required VoidCallback? onPressed,
     required String label,
     required IconData icon,
+    required bool isSmallScreen,
   }) {
     return Container(
       width: double.infinity,
-      height: 56,
+      height: isSmallScreen ? 48 : 52,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -664,7 +710,7 @@ class _LoginScreenState extends State<LoginScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
             color: _accentColor.withAlpha(76), // 30% opacity
@@ -678,17 +724,17 @@ class _LoginScreenState extends State<LoginScreen>
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           splashColor: Colors.white.withAlpha(40),
           highlightColor: Colors.white.withAlpha(20),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 12 : 14, horizontal: 20),
             child: isLoading
-                ? const Center(
+                ? Center(
                     child: SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(
+                      height: isSmallScreen ? 20 : 24,
+                      width: isSmallScreen ? 20 : 24,
+                      child: const CircularProgressIndicator(
                         color: Colors.white,
                         strokeWidth: 2,
                       ),
@@ -699,8 +745,8 @@ class _LoginScreenState extends State<LoginScreen>
                     children: [
                       Text(
                         label,
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 16 : 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           letterSpacing: 0.5,
@@ -709,7 +755,7 @@ class _LoginScreenState extends State<LoginScreen>
                       const SizedBox(width: 8),
                       Icon(
                         icon,
-                        size: 18,
+                        size: isSmallScreen ? 16 : 18,
                         color: Colors.white,
                       ),
                     ],
@@ -720,19 +766,20 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
   
-  // Reusable social login button builder
-  Widget _buildSocialLoginButton({
+  // Compact social login button builder
+  Widget _buildCompactSocialLoginButton({
     required bool isLoading,
     required VoidCallback? onPressed,
     required String label,
     required String logoAsset,
+    required bool isSmallScreen,
   }) {
     return Container(
       width: double.infinity,
-      height: 56,
+      height: isSmallScreen ? 48 : 52,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: const [
           BoxShadow(
             color: Color(0x14000000), // Black with 8% opacity
@@ -744,10 +791,10 @@ class _LoginScreenState extends State<LoginScreen>
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           splashColor: Colors.grey.withAlpha(40),
           highlightColor: Colors.grey.withAlpha(20),
           child: Padding(
@@ -756,11 +803,11 @@ class _LoginScreenState extends State<LoginScreen>
               horizontal: 24,
             ),
             child: isLoading
-                ? const Center(
+                ? Center(
                     child: SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(
+                      height: isSmallScreen ? 20 : 24,
+                      width: isSmallScreen ? 20 : 24,
+                      child: const CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF757575)),
                         strokeWidth: 2,
                       ),
@@ -771,15 +818,15 @@ class _LoginScreenState extends State<LoginScreen>
                     children: [
                       Image.asset(
                         logoAsset,
-                        height: 24,
+                        height: isSmallScreen ? 20 : 24,
                       ),
                       const SizedBox(width: 16),
                       Text(
                         label,
-                        style: const TextStyle(
-                          color: Color(0xFF2C2C2C),
+                        style: TextStyle(
+                          color: const Color(0xFF2C2C2C),
                           fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                          fontSize: isSmallScreen ? 14 : 16,
                         ),
                       ),
                     ],

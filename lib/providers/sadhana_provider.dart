@@ -24,7 +24,7 @@ class SadhanaProvider with ChangeNotifier {
   // Yes/No status for other practices
   bool _tharpanamStatus = false;
   bool _homamStatus = false;
-  bool _dhyanamStatus = false;
+  bool _dhaanamStatus = false;
 
   // Monthly records
   Map<String, Map<String, dynamic>> _monthlyRecords = {};
@@ -40,7 +40,7 @@ class SadhanaProvider with ChangeNotifier {
   Map<String, int> get jebamHeatmap => _jebamHeatmap;
   bool get tharpanamStatus => _tharpanamStatus;
   bool get homamStatus => _homamStatus;
-  bool get dhyanamStatus => _dhyanamStatus;
+  bool get dhaanamStatus => _dhaanamStatus;
   Map<String, Map<String, dynamic>> get monthlyRecords => _monthlyRecords;
   bool get isLoading => _isLoading;
 
@@ -132,7 +132,7 @@ class SadhanaProvider with ChangeNotifier {
         _jebamCount = monthData['jebamCount'] ?? 0;
         _tharpanamStatus = monthData['tharpanamStatus'] ?? false;
         _homamStatus = monthData['homamStatus'] ?? false;
-        _dhyanamStatus = monthData['dhyanamStatus'] ?? false;
+        _dhaanamStatus = monthData['dhaanamStatus'] ?? false;
       }
 
       // Get all monthly records
@@ -175,7 +175,7 @@ class SadhanaProvider with ChangeNotifier {
       _tharpanamStatus =
           prefs.getBool('tharpanamStatus_$_currentMonth') ?? false;
       _homamStatus = prefs.getBool('homamStatus_$_currentMonth') ?? false;
-      _dhyanamStatus = prefs.getBool('dhyanamStatus_$_currentMonth') ?? false;
+      _dhaanamStatus = prefs.getBool('dhaanamStatus_$_currentMonth') ?? false;
 
       // Load monthly records
       final monthlyRecordsStr = prefs.getString('monthlyRecords') ?? '{}';
@@ -212,7 +212,7 @@ class SadhanaProvider with ChangeNotifier {
         'jebamCount': _jebamCount,
         'tharpanamStatus': _tharpanamStatus,
         'homamStatus': _homamStatus,
-        'dhyanamStatus': _dhyanamStatus,
+        'dhaanamStatus': _dhaanamStatus,
       };
 
       await _databaseService.saveSadhanaData(_userId!, monthData);
@@ -248,7 +248,7 @@ class SadhanaProvider with ChangeNotifier {
       // Save practice statuses
       await prefs.setBool('tharpanamStatus_$_currentMonth', _tharpanamStatus);
       await prefs.setBool('homamStatus_$_currentMonth', _homamStatus);
-      await prefs.setBool('dhyanamStatus_$_currentMonth', _dhyanamStatus);
+      await prefs.setBool('dhaanamStatus_$_currentMonth', _dhaanamStatus);
 
       // Save monthly records
       await prefs.setString('monthlyRecords', jsonEncode(_monthlyRecords));
@@ -445,7 +445,7 @@ class SadhanaProvider with ChangeNotifier {
       'month': monthKey,
       'tharpanamStatus': status,
       'homamStatus': _monthlyRecords[monthKey]!['homamStatus'] ?? false,
-      'dhyanamStatus': _monthlyRecords[monthKey]!['dhyanamStatus'] ?? false,
+      'dhaanamStatus': _monthlyRecords[monthKey]!['dhaanamStatus'] ?? false,
       'jebamCount': _monthlyRecords[monthKey]!['jebamCount'] ?? 0,
     };
 
@@ -499,7 +499,7 @@ class SadhanaProvider with ChangeNotifier {
       'month': monthKey,
       'homamStatus': status,
       'tharpanamStatus': _monthlyRecords[monthKey]!['tharpanamStatus'] ?? false,
-      'dhyanamStatus': _monthlyRecords[monthKey]!['dhyanamStatus'] ?? false,
+      'dhaanamStatus': _monthlyRecords[monthKey]!['dhaanamStatus'] ?? false,
       'jebamCount': _monthlyRecords[monthKey]!['jebamCount'] ?? 0,
     };
 
@@ -513,15 +513,15 @@ class SadhanaProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Update Dhyanam status
-  Future<void> updateDhyanamStatus(bool status) async {
-    _dhyanamStatus = status;
+  // Update Dhaanam status
+  Future<void> updateDhaanamStatus(bool status) async {
+    _dhaanamStatus = status;
 
     // Update monthly records
     if (!_monthlyRecords.containsKey(_currentMonth)) {
       _monthlyRecords[_currentMonth] = {};
     }
-    _monthlyRecords[_currentMonth]!['dhyanamStatus'] = _dhyanamStatus;
+    _monthlyRecords[_currentMonth]!['dhaanamStatus'] = _dhaanamStatus;
 
     await _saveCurrentMonthToFirestore();
     await _saveDataToSharedPreferences();
@@ -529,8 +529,8 @@ class SadhanaProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Update Dhyanam status for a specific month
-  Future<void> updateDhyanamStatusForMonth(
+  // Update Dhaanam status for a specific month
+  Future<void> updateDhaanamStatusForMonth(
     int year,
     int month,
     bool status,
@@ -541,17 +541,17 @@ class SadhanaProvider with ChangeNotifier {
       _monthlyRecords[monthKey] = {};
     }
 
-    _monthlyRecords[monthKey]!['dhyanamStatus'] = status;
+    _monthlyRecords[monthKey]!['dhaanamStatus'] = status;
 
     // If this is the current month, also update the current status
     if (monthKey == _currentMonth) {
-      _dhyanamStatus = status;
+      _dhaanamStatus = status;
     }
 
     // Create month data for Firestore
     Map<String, dynamic> monthData = {
       'month': monthKey,
-      'dhyanamStatus': status,
+      'dhaanamStatus': status,
       'tharpanamStatus': _monthlyRecords[monthKey]!['tharpanamStatus'] ?? false,
       'homamStatus': _monthlyRecords[monthKey]!['homamStatus'] ?? false,
       'jebamCount': _monthlyRecords[monthKey]!['jebamCount'] ?? 0,
@@ -578,14 +578,14 @@ class SadhanaProvider with ChangeNotifier {
           _monthlyRecords[newMonthKey]!['tharpanamStatus'] as bool? ?? false;
       _homamStatus =
           _monthlyRecords[newMonthKey]!['homamStatus'] as bool? ?? false;
-      _dhyanamStatus =
-          _monthlyRecords[newMonthKey]!['dhyanamStatus'] as bool? ?? false;
+      _dhaanamStatus =
+          _monthlyRecords[newMonthKey]!['dhaanamStatus'] as bool? ?? false;
       _jebamCount = _monthlyRecords[newMonthKey]!['jebamCount'] as int? ?? 0;
     } else {
       // Initialize empty records for new month
       _tharpanamStatus = false;
       _homamStatus = false;
-      _dhyanamStatus = false;
+      _dhaanamStatus = false;
       _jebamCount = 0;
     }
 
@@ -605,18 +605,18 @@ class SadhanaProvider with ChangeNotifier {
   Map<String, int> getCompletionStats() {
     int totalTharpanam = 0;
     int totalHomam = 0;
-    int totalDhyanam = 0;
+    int totalDhaanam = 0;
 
     _monthlyRecords.forEach((month, data) {
       if (data['tharpanamStatus'] as bool? ?? false) totalTharpanam++;
       if (data['homamStatus'] as bool? ?? false) totalHomam++;
-      if (data['dhyanamStatus'] as bool? ?? false) totalDhyanam++;
+      if (data['dhaanamStatus'] as bool? ?? false) totalDhaanam++;
     });
 
     return {
       'tharpanam': totalTharpanam,
       'homam': totalHomam,
-      'dhyanam': totalDhyanam,
+      'dhaanam': totalDhaanam,
     };
   }
 
