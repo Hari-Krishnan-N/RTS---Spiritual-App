@@ -1366,5 +1366,5 @@ class AnimatedIconButton extends StatelessWidget {
         },
       ),
     );
-  }
+  }  
 }

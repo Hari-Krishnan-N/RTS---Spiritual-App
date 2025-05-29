@@ -17,6 +17,9 @@ class SadhanaProvider with ChangeNotifier {
   String? _userPhotoUrl;
   String? _userId;
 
+  // ADD: Flag to prevent interference during signup
+  bool _isInSignupProcess = false;
+
   // Jebam data
   int _jebamCount = 0;
   Map<String, int> _jebamHeatmap = {};
@@ -44,6 +47,9 @@ class SadhanaProvider with ChangeNotifier {
   Map<String, Map<String, dynamic>> get monthlyRecords => _monthlyRecords;
   bool get isLoading => _isLoading;
 
+  // ADD: Getter for signup process flag
+  bool get isInSignupProcess => _isInSignupProcess;
+
   // Constructor - Load data on initialization
   SadhanaProvider() {
     _init();
@@ -55,9 +61,21 @@ class SadhanaProvider with ChangeNotifier {
     _setupAuthListener();
   }
 
-  // Set up auth state listener
+  // ADD: Methods to control signup process
+  void setSignupProcessActive(bool active) {
+    _isInSignupProcess = active;
+    notifyListeners();
+  }
+
+  // MODIFIED: Set up auth state listener with signup protection
   void _setupAuthListener() {
     _authService.authStateChanges.listen((User? user) async {
+      // CRITICAL: Don't interfere during signup process
+      if (_isInSignupProcess) {
+        debugPrint('Auth state change ignored - signup in progress');
+        return;
+      }
+
       if (user != null) {
         // User is logged in
         _isLoggedIn = true;
@@ -257,11 +275,14 @@ class SadhanaProvider with ChangeNotifier {
     }
   }
 
-  // Login with Firebase
+  // MODIFIED: Login with Firebase with signup protection
   Future<void> login(String email, String password) async {
     _setLoading(true);
 
     try {
+      // CRITICAL: Disable signup protection when doing actual login
+      _isInSignupProcess = false;
+      
       await _authService.signInWithEmailAndPassword(email, password);
 
       // Auth state listener will update isLoggedIn state
@@ -302,11 +323,14 @@ class SadhanaProvider with ChangeNotifier {
     }
   }
 
-  // Google Sign-In
+  // MODIFIED: Google Sign-In with signup protection
   Future<void> signInWithGoogle() async {
     _setLoading(true);
 
     try {
+      // CRITICAL: Disable signup protection for Google sign-in
+      _isInSignupProcess = false;
+      
       User? user = await _authService.signInWithGoogle();
 
       if (user != null) {

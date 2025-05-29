@@ -55,8 +55,10 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Check if logged in, if not redirect to login
-    if (!Provider.of<SadhanaProvider>(context).isLoggedIn) {
+    final provider = Provider.of<SadhanaProvider>(context);
+    
+    // CRITICAL: Don't redirect if signup is in progress
+    if (!provider.isLoggedIn && !provider.isInSignupProcess) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacementNamed(context, '/');
       });
