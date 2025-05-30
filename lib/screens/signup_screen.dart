@@ -30,6 +30,10 @@ class _SignupScreenState extends State<SignupScreen>
   bool _isCheckingVerification = false;
   bool _isLoading = false;
   bool _isAccountLocked = false;
+  
+  // FIXED: Better state management for signup completion
+  bool _signupCompleted = false;
+  bool _isCleaningUp = false;
 
   // Current step: 0 = Email verification, 1 = Complete signup
   int _currentStep = 0;
@@ -42,7 +46,7 @@ class _SignupScreenState extends State<SignupScreen>
   int _timeRemaining = 300; // 5 minutes in seconds
   User? _tempUser;
   
-  // CRITICAL: Store the temp password to reuse it
+  // Store the temp password to reuse it
   String? _tempPassword;
 
   late AnimationController _animationController;
@@ -68,7 +72,7 @@ class _SignupScreenState extends State<SignupScreen>
   void initState() {
     super.initState();
     
-    // CRITICAL: Activate signup protection immediately
+    // Activate signup protection immediately
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<SadhanaProvider>(context, listen: false);
       provider.setSignupProcessActive(true);
@@ -96,65 +100,80 @@ class _SignupScreenState extends State<SignupScreen>
     _animationController.forward();
   }
 
-  // IMPROVED: Better cleanup method with proper error handling
-  Future<void> _cleanupIncompleteVerification() async {
-    if (_tempUser != null && !_isEmailVerified) {
-      try {
-        debugPrint('Cleaning up incomplete verification for: ${_emailController.text}');
+  // FIXED: Simplified cleanup method with better state management
+  Future<void> _cleanupIncompleteSignup() async {
+    if (_isCleaningUp || _signupCompleted) return;
+    
+    _isCleaningUp = true;
+    
+    try {
+      if (_tempUser != null && _tempPassword != null) {
+        debugPrint('Cleaning up incomplete signup for: ${_emailController.text}');
         
-        if (_tempPassword != null) {
-          try {
-            // Sign in with temp credentials to delete the user
-            await _auth.signInWithEmailAndPassword(
-              email: _emailController.text.trim(),
-              password: _tempPassword!,
-            );
-            
-            final currentUser = _auth.currentUser;
-            if (currentUser != null) {
-              await currentUser.delete();
-              debugPrint('Successfully deleted incomplete user account');
-            }
-          } catch (e) {
-            debugPrint('Error deleting user during cleanup: $e');
-            // If deletion fails, try to sign out anyway
-            try {
-              await _auth.signOut();
-            } catch (_) {}
+        try {
+          // Try to sign in and delete the temporary user
+          await _auth.signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _tempPassword!,
+          );
+          
+          final currentUser = _auth.currentUser;
+          if (currentUser != null) {
+            await currentUser.delete();
+            debugPrint('Successfully deleted incomplete user account');
           }
+        } catch (e) {
+          debugPrint('Error deleting user during cleanup: $e');
         }
-      } catch (e) {
-        debugPrint('Error in cleanup process: $e');
-      } finally {
-        // Always reset state
-        _tempUser = null;
-        _tempPassword = null;
-        if (mounted) {
-          setState(() {
-            _isEmailVerified = false;
-          });
+        
+        // Always sign out regardless of deletion success
+        try {
+          await _auth.signOut();
+        } catch (e) {
+          debugPrint('Error signing out during cleanup: $e');
         }
+      }
+    } catch (e) {
+      debugPrint('Error in cleanup process: $e');
+    } finally {
+      // Reset state
+      _tempUser = null;
+      _tempPassword = null;
+      _isCleaningUp = false;
+      
+      if (mounted) {
+        setState(() {
+          _isEmailVerified = false;
+        });
       }
     }
   }
 
   @override
   void dispose() {
-    // CRITICAL: Deactivate signup protection when leaving
-    final provider = Provider.of<SadhanaProvider>(context, listen: false);
-    provider.setSignupProcessActive(false);
+    // Cancel timers first
+    _resendTimer?.cancel();
+    _timeoutTimer?.cancel();
     
+    // Deactivate signup protection when leaving
+    try {
+      final provider = Provider.of<SadhanaProvider>(context, listen: false);
+      provider.setSignupProcessActive(false);
+    } catch (e) {
+      debugPrint('Error deactivating signup protection: $e');
+    }
+    
+    // Dispose controllers and animations
     _animationController.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _resendTimer?.cancel();
-    _timeoutTimer?.cancel();
 
-    // IMPROVED: Always cleanup if we have incomplete verification
-    if (_tempUser != null && !_isEmailVerified) {
-      Future.microtask(() => _cleanupIncompleteVerification());
+    // FIXED: Only cleanup if signup was not completed
+    if (!_signupCompleted && _tempUser != null) {
+      // Use microtask to avoid calling async method in dispose
+      Future.microtask(() => _cleanupIncompleteSignup());
     }
 
     super.dispose();
@@ -195,7 +214,7 @@ class _SignupScreenState extends State<SignupScreen>
         
         _tempUser = userCredential.user;
         
-        // CRITICAL: Sign out immediately to prevent auto-login
+        // Sign out immediately to prevent auto-login
         await _auth.signOut();
         
       } on FirebaseAuthException catch (e) {
@@ -218,7 +237,7 @@ class _SignupScreenState extends State<SignupScreen>
           if (currentUser != null) {
             await currentUser.sendEmailVerification();
             
-            // CRITICAL: Sign out again after sending email
+            // Sign out again after sending email
             await _auth.signOut();
           }
           
@@ -235,7 +254,7 @@ class _SignupScreenState extends State<SignupScreen>
           
         } catch (emailError) {
           // Clean up if email sending fails
-          await _cleanupIncompleteVerification();
+          await _cleanupIncompleteSignup();
           throw Exception('Failed to send verification email: ${emailError.toString()}');
         }
       } else {
@@ -290,7 +309,7 @@ class _SignupScreenState extends State<SignupScreen>
         }
       } else {
         timer.cancel();
-        if (!_isEmailVerified && _tempUser != null) {
+        if (!_isEmailVerified && _tempUser != null && !_signupCompleted) {
           _markAsUnverifiedAndAllowRetry();
         }
       }
@@ -304,7 +323,7 @@ class _SignupScreenState extends State<SignupScreen>
         _isEmailVerified = false;
       });
       
-      _cleanupIncompleteVerification();
+      _cleanupIncompleteSignup();
       
       _showErrorMessage('Verification timeout (5 minutes). Please try again. (${70 - _verificationAttempts} attempts remaining)');
     }
@@ -327,7 +346,7 @@ class _SignupScreenState extends State<SignupScreen>
       // Use the SAME temp password that was used to create the account
       await _auth.signInWithEmailAndPassword(
         email: email,
-        password: _tempPassword!, // Using stored password
+        password: _tempPassword!,
       );
       
       final currentUser = _auth.currentUser;
@@ -343,7 +362,7 @@ class _SignupScreenState extends State<SignupScreen>
           
           _timeoutTimer?.cancel();
           
-          // CRITICAL: Sign out after checking - don't stay logged in
+          // Sign out after checking - don't stay logged in
           await _auth.signOut();
           
           _showSuccessMessage('Email verified successfully! Click Continue to proceed.');
@@ -511,7 +530,7 @@ class _SignupScreenState extends State<SignupScreen>
       // Use the SAME temp password for resending
       await _auth.signInWithEmailAndPassword(
         email: email,
-        password: _tempPassword!, // Using stored password
+        password: _tempPassword!,
       );
       
       final currentUser = _auth.currentUser;
@@ -558,7 +577,7 @@ class _SignupScreenState extends State<SignupScreen>
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  // IMPROVED: Complete signup with better error handling and database field consistency
+  // FIXED: Complete signup with better state management
   Future<void> _completeSignup() async {
     if (_tempUser == null || _tempPassword == null) {
       _showErrorMessage('No user session found. Please start over.');
@@ -590,7 +609,7 @@ class _SignupScreenState extends State<SignupScreen>
       // Sign in to complete the process using the SAME temp password
       await _auth.signInWithEmailAndPassword(
         email: email,
-        password: _tempPassword!, // Using stored password
+        password: _tempPassword!,
       );
       
       final currentUser = _auth.currentUser;
@@ -608,9 +627,9 @@ class _SignupScreenState extends State<SignupScreen>
       await currentUser.updatePassword(_passwordController.text);
       await currentUser.updateDisplayName(_nameController.text.trim());
       
-      // FIXED: Create user document with 'id' field (consistent naming)
+      // Create user document with consistent naming
       await _firestore.collection('users').doc(currentUser.uid).set({
-        'id': currentUser.uid,  // Using 'id' instead of 'uid' for consistency
+        'id': currentUser.uid,  // Using 'id' consistently
         'email': currentUser.email,
         'name': _nameController.text.trim(),
         'createdAt': FieldValue.serverTimestamp(),
@@ -619,19 +638,30 @@ class _SignupScreenState extends State<SignupScreen>
         'verificationAttempts': _verificationAttempts,
       });
 
+      // FIXED: Mark signup as completed BEFORE deactivating protection
+      setState(() {
+        _signupCompleted = true;
+      });
+
       if (!mounted) return;
       
-      // CRITICAL: Deactivate signup protection before final login
+      // Deactivate signup protection before final login
       final sadhanaProvider = Provider.of<SadhanaProvider>(context, listen: false);
       sadhanaProvider.setSignupProcessActive(false);
       
-      // NOW we can login through the provider
+      // Now we can login through the provider
       await sadhanaProvider.login(_emailController.text.trim(), _passwordController.text);
 
       if (!mounted) return;
       
       Navigator.pushReplacementNamed(context, '/dashboard');
+      
     } catch (e) {
+      // FIXED: Don't mark as completed if there's an error
+      setState(() {
+        _signupCompleted = false;
+      });
+      
       try {
         await _auth.signOut();
       } catch (_) {}
@@ -735,7 +765,7 @@ class _SignupScreenState extends State<SignupScreen>
                         // Top section
                         Column(
                           children: [
-                            // IMPROVED: Back button with better cleanup logic
+                            // FIXED: Back button with simplified cleanup logic
                             Align(
                               alignment: Alignment.topLeft,
                               child: Container(
@@ -751,10 +781,7 @@ class _SignupScreenState extends State<SignupScreen>
                                   icon: Icon(Icons.arrow_back, color: _textColor),
                                   onPressed: () async {
                                     if (_currentStep == 1) {
-                                      // CRITICAL: Going back from step 2 to step 1 - cleanup incomplete signup
-                                      if (_tempUser != null && !_isEmailVerified) {
-                                        await _cleanupIncompleteVerification();
-                                      }
+                                      // Going back from step 2 to step 1
                                       setState(() {
                                         _currentStep = 0;
                                         // Reset form fields when going back
@@ -763,13 +790,19 @@ class _SignupScreenState extends State<SignupScreen>
                                         _confirmPasswordController.clear();
                                       });
                                     } else {
-                                      // CRITICAL: Deactivate protection before leaving
-                                      final provider = Provider.of<SadhanaProvider>(context, listen: false);
-                                      provider.setSignupProcessActive(false);
-                                      
-                                      if (_tempUser != null && !_isEmailVerified) {
-                                        await _cleanupIncompleteVerification();
+                                      // Leaving signup entirely
+                                      try {
+                                        final provider = Provider.of<SadhanaProvider>(context, listen: false);
+                                        provider.setSignupProcessActive(false);
+                                      } catch (e) {
+                                        debugPrint('Error deactivating signup protection: $e');
                                       }
+                                      
+                                      // Only cleanup if signup not completed
+                                      if (!_signupCompleted) {
+                                        await _cleanupIncompleteSignup();
+                                      }
+                                      
                                       if (mounted) {
                                         Navigator.pop(context);
                                       }
@@ -879,9 +912,6 @@ class _SignupScreenState extends State<SignupScreen>
       ),
     );
   }
-
-  // ... (Rest of the widget building methods remain the same as in your original code)
-  // I'll include the key methods but the rest can stay as they were
 
   Widget _buildCompactLogo(bool isVerySmallScreen, bool isSmallScreen) {
     final logoSize = isVerySmallScreen ? 80.0 : (isSmallScreen ? 100.0 : 120.0);
@@ -1026,15 +1056,6 @@ class _SignupScreenState extends State<SignupScreen>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'You have exceeded the maximum number of verification attempts (70). Please contact admin for assistance.',
-                      style: TextStyle(
-                        color: _errorColor,
-                        fontSize: 12,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
                   ],
                 ),
               ),
@@ -1062,39 +1083,6 @@ class _SignupScreenState extends State<SignupScreen>
               ),
 
               SizedBox(height: isSmallScreen ? 16 : 20),
-
-              // Time remaining display
-              if (_tempUser != null && _timeRemaining > 0) ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: _timeRemaining < 60 ? _errorColor.withOpacity(0.2) : _accentColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: _timeRemaining < 60 ? _errorColor : _accentColor, width: 1),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.timer,
-                        color: _timeRemaining < 60 ? _errorColor : _accentColor,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Time remaining: ${_formatTime(_timeRemaining)}',
-                          style: TextStyle(
-                            color: _timeRemaining < 60 ? _errorColor : _accentColor,
-                            fontSize: isSmallScreen ? 12 : 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: isSmallScreen ? 12 : 16),
-              ],
 
               // Status message if email sent
               if (_tempUser != null) ...[
@@ -1475,9 +1463,13 @@ class _SignupScreenState extends State<SignupScreen>
               ),
               GestureDetector(
                 onTap: () {
-                  // CRITICAL: Deactivate protection before going to login
-                  final provider = Provider.of<SadhanaProvider>(context, listen: false);
-                  provider.setSignupProcessActive(false);
+                  // Deactivate protection before going to login
+                  try {
+                    final provider = Provider.of<SadhanaProvider>(context, listen: false);
+                    provider.setSignupProcessActive(false);
+                  } catch (e) {
+                    debugPrint('Error deactivating signup protection: $e');
+                  }
                   Navigator.pop(context);
                 },
                 child: Text(
@@ -1830,10 +1822,15 @@ class _SignupScreenState extends State<SignupScreen>
     try {
       if (!mounted) return;
 
-      // CRITICAL: Deactivate signup protection for Google sign-in
-      final provider = Provider.of<SadhanaProvider>(context, listen: false);
-      provider.setSignupProcessActive(false);
+      // Deactivate signup protection for Google sign-in
+      try {
+        final provider = Provider.of<SadhanaProvider>(context, listen: false);
+        provider.setSignupProcessActive(false);
+      } catch (e) {
+        debugPrint('Error deactivating signup protection: $e');
+      }
 
+      final provider = Provider.of<SadhanaProvider>(context, listen: false);
       await provider.signInWithGoogle();
 
       if (!mounted) return;

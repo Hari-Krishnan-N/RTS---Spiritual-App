@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:math';
-import '../utils/app_theme.dart';
 
 class PracticeTile extends StatefulWidget {
   final String title;
