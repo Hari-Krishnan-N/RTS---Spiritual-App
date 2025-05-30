@@ -17,7 +17,7 @@ class SadhanaProvider with ChangeNotifier {
   String? _userPhotoUrl;
   String? _userId;
 
-  // ADD: Flag to prevent interference during signup
+  // Flag to prevent interference during signup
   bool _isInSignupProcess = false;
 
   // Jebam data
@@ -33,6 +33,9 @@ class SadhanaProvider with ChangeNotifier {
   Map<String, Map<String, dynamic>> _monthlyRecords = {};
   bool _isLoading = false;
 
+  // FIXED: Add navigation lock to prevent conflicts
+  bool _isNavigationLocked = false;
+
   // Getters
   bool get isLoggedIn => _isLoggedIn;
   String get currentMonth => _currentMonth;
@@ -46,8 +49,6 @@ class SadhanaProvider with ChangeNotifier {
   bool get dhaanamStatus => _dhaanamStatus;
   Map<String, Map<String, dynamic>> get monthlyRecords => _monthlyRecords;
   bool get isLoading => _isLoading;
-
-  // ADD: Getter for signup process flag
   bool get isInSignupProcess => _isInSignupProcess;
 
   // Constructor - Load data on initialization
@@ -61,36 +62,48 @@ class SadhanaProvider with ChangeNotifier {
     _setupAuthListener();
   }
 
-  // ADD: Methods to control signup process
+  // Methods to control signup process
   void setSignupProcessActive(bool active) {
+    debugPrint('Setting signup process active: $active');
     _isInSignupProcess = active;
     notifyListeners();
   }
 
-  // MODIFIED: Set up auth state listener with signup protection
+  // FIXED: Improved auth state listener with better conflict handling
   void _setupAuthListener() {
     _authService.authStateChanges.listen((User? user) async {
-      // CRITICAL: Don't interfere during signup process
-      if (_isInSignupProcess) {
-        debugPrint('Auth state change ignored - signup in progress');
+      debugPrint('Auth state changed: ${user?.uid}, signup in progress: $_isInSignupProcess, navigation locked: $_isNavigationLocked');
+      
+      // Don't interfere during signup process or when navigation is locked
+      if (_isInSignupProcess || _isNavigationLocked) {
+        debugPrint('Auth state change ignored - signup in progress or navigation locked');
         return;
       }
 
       if (user != null) {
         // User is logged in
-        _isLoggedIn = true;
-        _userId = user.uid;
-        _username = user.displayName ?? user.email?.split('@')[0] ?? 'User';
-        _userPhotoUrl = user.photoURL;
+        if (!_isLoggedIn) {
+          debugPrint('User logged in: ${user.uid}');
+          _isLoggedIn = true;
+          _userId = user.uid;
+          _username = user.displayName ?? user.email?.split('@')[0] ?? 'User';
+          _userPhotoUrl = user.photoURL;
 
-        // Load user data from Firestore
-        await _loadUserDataFromFirestore();
+          // Load user data from Firestore
+          await _loadUserDataFromFirestore();
+          notifyListeners();
+        }
       } else {
         // User is logged out
-        _isLoggedIn = false;
-        _userId = null;
+        if (_isLoggedIn) {
+          debugPrint('User logged out');
+          _isLoggedIn = false;
+          _userId = null;
+          _username = '';
+          _userPhotoUrl = null;
+          notifyListeners();
+        }
       }
-      notifyListeners();
     });
   }
 
@@ -275,27 +288,38 @@ class SadhanaProvider with ChangeNotifier {
     }
   }
 
-  // MODIFIED: Login with Firebase with signup protection
+  // FIXED: Login with proper navigation control
   Future<void> login(String email, String password) async {
     _setLoading(true);
 
     try {
-      // CRITICAL: Disable signup protection when doing actual login
+      // Lock navigation during login
+      _isNavigationLocked = true;
+      
+      // Disable signup protection when doing actual login
       _isInSignupProcess = false;
       
       await _authService.signInWithEmailAndPassword(email, password);
 
-      // Auth state listener will update isLoggedIn state
+      // Wait for auth state to update
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Load user data from Firestore
       await _loadUserDataFromFirestore();
 
       // Save the login state to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
+
+      // Update state
+      _isLoggedIn = true;
+      
     } catch (e) {
       // Login failed
       _isLoggedIn = false;
       rethrow; // Rethrow to handle in UI
     } finally {
+      _isNavigationLocked = false;
       _setLoading(false);
     }
   }
@@ -323,12 +347,15 @@ class SadhanaProvider with ChangeNotifier {
     }
   }
 
-  // MODIFIED: Google Sign-In with signup protection
+  // FIXED: Google Sign-In with proper navigation control
   Future<void> signInWithGoogle() async {
     _setLoading(true);
 
     try {
-      // CRITICAL: Disable signup protection for Google sign-in
+      // Lock navigation during Google sign-in
+      _isNavigationLocked = true;
+      
+      // Disable signup protection for Google sign-in
       _isInSignupProcess = false;
       
       User? user = await _authService.signInWithGoogle();
@@ -339,7 +366,11 @@ class SadhanaProvider with ChangeNotifier {
         _userPhotoUrl = user.photoURL;
         _isLoggedIn = true;
 
-        // Auth state listener will trigger loading data
+        // Wait for auth state to update
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        // Load user data
+        await _loadUserDataFromFirestore();
       } else {
         // Sign in canceled by user
         _isLoggedIn = false;
@@ -348,6 +379,7 @@ class SadhanaProvider with ChangeNotifier {
       _isLoggedIn = false;
       rethrow;
     } finally {
+      _isNavigationLocked = false;
       _setLoading(false);
     }
   }
@@ -399,7 +431,9 @@ class SadhanaProvider with ChangeNotifier {
   Future<void> updateJebamHeatmap(String dateStr, int count) async {
     _jebamHeatmap[dateStr] = count;
 
-    await _databaseService.saveJebamHeatmap(_userId!, _jebamHeatmap);
+    if (_userId != null) {
+      await _databaseService.saveJebamHeatmap(_userId!, _jebamHeatmap);
+    }
     await _saveDataToSharedPreferences();
 
     notifyListeners();
@@ -668,7 +702,9 @@ class SadhanaProvider with ChangeNotifier {
         updateData['imgUrl'] = photoUrl;
       }
 
-      await _databaseService.updateUser(_userId!, updateData);
+      if (_userId != null) {
+        await _databaseService.updateUser(_userId!, updateData);
+      }
 
       _username = name;
       if (photoUrl != null) {

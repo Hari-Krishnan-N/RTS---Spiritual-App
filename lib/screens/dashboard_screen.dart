@@ -31,6 +31,9 @@ class _DashboardScreenState extends State<DashboardScreen>
   int _selectedIndex = 0;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  
+  // FIXED: Add flag to prevent repeated redirects
+  bool _hasCheckedAuth = false;
 
   @override
   void initState() {
@@ -57,11 +60,26 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget build(BuildContext context) {
     final provider = Provider.of<SadhanaProvider>(context);
     
-    // CRITICAL: Don't redirect if signup is in progress
-    if (!provider.isLoggedIn && !provider.isInSignupProcess) {
+    // FIXED: Only check auth once and handle navigation properly
+    if (!provider.isLoggedIn && !provider.isInSignupProcess && !_hasCheckedAuth) {
+      _hasCheckedAuth = true;
+      // Use a post frame callback to avoid setState during build
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/');
+        if (mounted && !provider.isLoggedIn && !provider.isInSignupProcess) {
+          Navigator.pushReplacementNamed(context, '/');
+        }
       });
+      // Return a loading screen while checking
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // FIXED: Reset the flag when user is logged in
+    if (provider.isLoggedIn && !_hasCheckedAuth) {
+      _hasCheckedAuth = true;
     }
 
     // List of screen widgets
