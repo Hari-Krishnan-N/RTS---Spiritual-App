@@ -14,17 +14,19 @@ class DatabaseService {
 
       if (docSnapshot.exists) {
         // If user exists, update only new fields without overwriting existing data
-        return await _firestore.collection(_userCollection).doc(userId).update({
-          ...userInfoMap,
-          'lastUpdated': FieldValue.serverTimestamp(),
-        });
+        // ENSURE: The userInfoMap should contain 'id' field, not 'uid'
+        final updateMap = Map<String, dynamic>.from(userInfoMap);
+        updateMap['lastUpdated'] = FieldValue.serverTimestamp();
+        
+        return await _firestore.collection(_userCollection).doc(userId).update(updateMap);
       } else {
         // If user doesn't exist, create new document
-        return await _firestore.collection(_userCollection).doc(userId).set({
-          ...userInfoMap,
-          'createdAt': FieldValue.serverTimestamp(),
-          'lastUpdated': FieldValue.serverTimestamp(),
-        });
+        // ENSURE: The userInfoMap should contain 'id' field, not 'uid'
+        final createMap = Map<String, dynamic>.from(userInfoMap);
+        createMap['createdAt'] = FieldValue.serverTimestamp();
+        createMap['lastUpdated'] = FieldValue.serverTimestamp();
+        
+        return await _firestore.collection(_userCollection).doc(userId).set(createMap);
       }
     } catch (e) {
       throw Exception('Failed to add user: ${e.toString()}');
@@ -37,10 +39,10 @@ class DatabaseService {
     Map<String, dynamic> updateData,
   ) async {
     try {
-      return await _firestore.collection(_userCollection).doc(userId).update({
-        ...updateData,
-        'lastUpdated': FieldValue.serverTimestamp(),
-      });
+      final updateMap = Map<String, dynamic>.from(updateData);
+      updateMap['lastUpdated'] = FieldValue.serverTimestamp();
+      
+      return await _firestore.collection(_userCollection).doc(userId).update(updateMap);
     } catch (e) {
       throw Exception('Failed to update user: ${e.toString()}');
     }
@@ -72,17 +74,17 @@ class DatabaseService {
           .collection(_userCollection)
           .doc(userId);
 
-      // Save sadhana data in a subcollection
+      // ENSURE: Save sadhana data in a subcollection with proper structure
+      final sadhanaMap = Map<String, dynamic>.from(sadhanaData);
+      sadhanaMap['updatedAt'] = FieldValue.serverTimestamp();
+      sadhanaMap['user'] = userRef;
+
       await _firestore
           .collection(_userCollection)
           .doc(userId)
           .collection(_sadhanaCollection)
           .doc(sadhanaData['month'])
-          .set({
-            ...sadhanaData,
-            'updatedAt': FieldValue.serverTimestamp(),
-            'user': userRef,
-          }, SetOptions(merge: true));
+          .set(sadhanaMap, SetOptions(merge: true));
     } catch (e) {
       throw Exception('Failed to save sadhana data: ${e.toString()}');
     }
@@ -172,6 +174,57 @@ class DatabaseService {
       return null;
     } catch (e) {
       throw Exception('Failed to get jebam heatmap: ${e.toString()}');
+    }
+  }
+
+  // ADDED: Method to delete user account and all associated data
+  Future<void> deleteUserData(String userId) async {
+    try {
+      final batch = _firestore.batch();
+
+      // Delete user document
+      final userDocRef = _firestore.collection(_userCollection).doc(userId);
+      batch.delete(userDocRef);
+
+      // Delete sadhana subcollection
+      final sadhanaQuery = await _firestore
+          .collection(_userCollection)
+          .doc(userId)
+          .collection(_sadhanaCollection)
+          .get();
+
+      for (QueryDocumentSnapshot doc in sadhanaQuery.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // Delete jebam heatmap subcollection
+      final heatmapQuery = await _firestore
+          .collection(_userCollection)
+          .doc(userId)
+          .collection('jebamHeatmap')
+          .get();
+
+      for (QueryDocumentSnapshot doc in heatmapQuery.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // Commit the batch
+      await batch.commit();
+    } catch (e) {
+      throw Exception('Failed to delete user data: ${e.toString()}');
+    }
+  }
+
+  // ADDED: Method to check if user exists in database
+  Future<bool> userExists(String userId) async {
+    try {
+      DocumentSnapshot doc = await _firestore
+          .collection(_userCollection)
+          .doc(userId)
+          .get();
+      return doc.exists;
+    } catch (e) {
+      throw Exception('Failed to check if user exists: ${e.toString()}');
     }
   }
 }

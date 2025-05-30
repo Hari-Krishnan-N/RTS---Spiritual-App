@@ -24,6 +24,9 @@ class _HomamScreenState extends State<HomamScreen>
 
   // Fire animation variables
   final List<Map<String, dynamic>> _flames = [];
+  
+  // Ripple animation variables (added from Dhaanam screen)
+  final List<Map<String, dynamic>> _ripples = [];
 
   // Homam Theme Colors - from Dashboard card
   final Color _deepRust = const Color(
@@ -51,6 +54,9 @@ class _HomamScreenState extends State<HomamScreen>
 
     // Create flame animations
     _createFlames();
+    
+    // Create ripple animations
+    _createRipples();
 
     // Initialize status from provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -83,6 +89,17 @@ class _HomamScreenState extends State<HomamScreen>
             random.nextBool()
                 ? _deepRust
                 : (random.nextBool() ? _mutedOrange : _lightOrange),
+      });
+    }
+  }
+
+  void _createRipples() {
+    // Create 3 circular ripples with different speeds and sizes (from Dhaanam screen)
+    for (int i = 0; i < 3; i++) {
+      _ripples.add({
+        'scale': 0.75 + (i * 0.12),
+        'speed': 1.0 + (i * 0.3), // reduced speed difference
+        'opacity': 0.7 - (i * 0.15),
       });
     }
   }
@@ -180,6 +197,66 @@ class _HomamScreenState extends State<HomamScreen>
                               Clip.none, // Allow overflow without affecting layout
                           alignment: Alignment.center,
                           children: [
+                            // Ripple animation container (added from Dhaanam screen)
+                            RepaintBoundary(
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                alignment: Alignment.center,
+                                children: _ripples.map((ripple) {
+                                  return AnimatedBuilder(
+                                    animation: _animationController,
+                                    builder: (context, child) {
+                                      // Calculate ripple scale and opacity
+                                      double rippleScale =
+                                          ripple['scale'] +
+                                          sin(
+                                                _animationController.value *
+                                                    pi *
+                                                    ripple['speed'],
+                                              ) *
+                                              0.1;
+
+                                      double rippleOpacity =
+                                          ripple['opacity'] *
+                                          (1.0 -
+                                              sin(
+                                                    _animationController
+                                                            .value *
+                                                        pi *
+                                                        ripple['speed'],
+                                                  ) *
+                                                  0.3);
+
+                                      return Positioned(
+                                        // Center position for ripple
+                                        top: 100 - (100 * rippleScale),
+                                        left: 100 - (100 * rippleScale),
+                                        // Fixed width container for ripple
+                                        child: Opacity(
+                                          opacity: _homamStatus ? rippleOpacity : rippleOpacity * 0.5,
+                                          child: Container(
+                                            width: 200 * rippleScale,
+                                            height: 200 * rippleScale,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: _lightOrange
+                                                    .withAlpha(
+                                                      (rippleOpacity * 255)
+                                                          .toInt(),
+                                                    ),
+                                                width: 2,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+
                             // Animated flames with fixed position
                             RepaintBoundary(
                               child: AnimatedBuilder(

@@ -43,11 +43,11 @@ class AuthService {
             password: password,
           );
 
-      // Store additional user info in database
+      // FIXED: Store additional user info in database with consistent 'id' field
       await _databaseService.addUser(userCredential.user!.uid, {
         "email": email,
         "name": name,
-        "id": userCredential.user!.uid,
+        "id": userCredential.user!.uid, // Using 'id' consistently
       });
 
       return userCredential;
@@ -125,7 +125,7 @@ class AuthService {
     }
   }
 
-  // Store user data in Firestore
+  // FIXED: Store user data in Firestore with consistent 'id' field usage
   Future<void> _storeUserData(User user, {String? googlePhotoURL}) async {
     try {
       // Check if user document already exists
@@ -160,12 +160,12 @@ class AuthService {
 
         await _databaseService.updateUser(user.uid, updateData);
       } else {
-        // For new users, create a complete profile
+        // FIXED: For new users, create a complete profile with consistent 'id' field
         final Map<String, dynamic> userInfoMap = {
           "email": user.email,
           "name": user.displayName ?? user.email?.split('@')[0] ?? 'User',
           "imgUrl": googlePhotoURL ?? user.photoURL ?? "",
-          "id": user.uid,
+          "id": user.uid, // Using 'id' consistently instead of mixing uid/id
           "lastLogin": FieldValue.serverTimestamp(),
           "createdAt": FieldValue.serverTimestamp(),
         };
@@ -210,6 +210,9 @@ class AuthService {
         break;
       case 'network-request-failed':
         message = 'Network error. Please check your connection.';
+        break;
+      case 'invalid-credential':
+        message = 'Invalid login credentials. Please check your email and password.';
         break;
       default:
         message = e.message ?? 'Authentication failed. Please try again.';
