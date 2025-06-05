@@ -500,18 +500,18 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                 ),
               ),
 
-              // Practices Grid with improved layout and animations
+              // Practices Grid with consistent 2x2 layout for all screen sizes
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(24, 40, 24, 120),
                 sliver: SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: size.width > 600 ? 3 : 2,
-                    childAspectRatio: 0.75,
-                    crossAxisSpacing: 18, // Increased spacing
-                    mainAxisSpacing: 24, // Increased spacing
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Always 2 columns for consistent layout
+                    childAspectRatio: 1.0, // Square cards for all screen sizes
+                    crossAxisSpacing: 16, // Consistent spacing
+                    mainAxisSpacing: 16, // Consistent spacing
                   ),
                   delegate: SliverChildListDelegate([
-                    // Japam card with SWAPPED colors (now using muted green)
+                    // Japam card (Top Left)
                     AnimatedBuilder(
                       animation: _itemsAnimation,
                       builder: (context, child) {
@@ -528,10 +528,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                         description: 'Track your daily chanting',
                         icon: Icons.format_list_numbered_rounded,
                         gradientColors: const [
-                          Color(0xFF3A5F2E), // Dark muted green
-                          Color(0xFF5C8D4A), // Muted green
+                          Color(0xFF4A7843), // Muted green to match image
+                          Color(0xFF6B9B5A), // Lighter muted green
                         ],
-                        shadowColor: const Color(0xFF3A5F2E).withValues(alpha: 0.4),
+                        shadowColor: const Color(0xFF4A7843).withValues(alpha: 0.4),
                         iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
@@ -541,7 +541,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                       ),
                     ),
 
-                    // Tharpanam card with enhanced animation and design
+                    // Tharpanam card (Top Right)
                     AnimatedBuilder(
                       animation: _itemsAnimation,
                       builder: (context, child) {
@@ -558,10 +558,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                         description: 'Monthly ritual tracking',
                         icon: Icons.water_drop_rounded,
                         gradientColors: const [
-                          Color(0xFF1B4B47), // Deep muted teal
-                          Color(0xFF2E706A), // Muted teal
+                          Color(0xFF2E5B5B), // Muted teal to match image
+                          Color(0xFF4A7A7A), // Lighter muted teal
                         ],
-                        shadowColor: const Color(0xFF1B4B47).withValues(alpha: 0.4),
+                        shadowColor: const Color(0xFF2E5B5B).withValues(alpha: 0.4),
                         iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
@@ -571,7 +571,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                       ),
                     ),
 
-                    // Homam card with enhanced animation and design
+                    // Homam card (Bottom Left)
                     AnimatedBuilder(
                       animation: _itemsAnimation,
                       builder: (context, child) {
@@ -588,10 +588,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                         description: 'Fire ritual status',
                         icon: Icons.local_fire_department_rounded,
                         gradientColors: const [
-                          Color(0xFF7D3812), // Deep rust
-                          Color(0xFFA35735), // Muted orange
+                          Color(0xFF8B4513), // Rich brown to match image
+                          Color(0xFFA0603C), // Lighter brown
                         ],
-                        shadowColor: const Color(0xFF7D3812).withValues(alpha: 0.4),
+                        shadowColor: const Color(0xFF8B4513).withValues(alpha: 0.4),
                         iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
@@ -601,7 +601,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                       ),
                     ),
 
-                    // Dhaanam card with SWAPPED colors (now using muted purple) and updated description
+                    // Dhanam card (Bottom Right)
                     AnimatedBuilder(
                       animation: _itemsAnimation,
                       builder: (context, child) {
@@ -618,10 +618,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                         description: 'Charity & giving tracker',
                         icon: Icons.spa_rounded,
                         gradientColors: const [
-                          Color(0xFF362358), // Deep muted purple
-                          Color(0xFF4E3980), // Muted purple
+                          Color(0xFF4A3A6B), // Muted purple to match image
+                          Color(0xFF6B5A8A), // Lighter muted purple
                         ],
-                        shadowColor: const Color(0xFF362358).withValues(alpha: 0.4),
+                        shadowColor: const Color(0xFF4A3A6B).withValues(alpha: 0.4),
                         iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(

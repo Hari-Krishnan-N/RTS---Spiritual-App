@@ -62,7 +62,7 @@ class _SplashScreenState extends State<SplashScreen>
     });
 
     // Check auth state after a delay
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () { 
       _checkAuthState();
     });
   }
