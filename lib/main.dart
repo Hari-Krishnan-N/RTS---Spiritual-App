@@ -6,6 +6,9 @@ import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/admin_dashboard_screen.dart';
+import 'screens/admin_user_management_screen.dart';
+import 'screens/admin_analytics_screen.dart';
 import 'providers/sadhana_provider.dart';
 import 'utils/app_theme.dart';
 import 'utils/navigation_transitions.dart';
@@ -64,6 +67,21 @@ class MyApp extends StatelessWidget {
               page: const DashboardScreen(),
               settings: settings,
             );
+          case '/admin':
+            return CupertinoStylePageRoute(
+              page: const AdminDashboardScreen(),
+              settings: settings,
+            );
+          case '/admin/users':
+            return CupertinoStylePageRoute(
+              page: const AdminUserManagementScreen(),
+              settings: settings,
+            );
+          case '/admin/analytics':
+            return CupertinoStylePageRoute(
+              page: const AdminAnalyticsScreen(),
+              settings: settings,
+            );
           default:
             return CupertinoStylePageRoute(
               page: const SplashScreen(),
@@ -76,6 +94,9 @@ class MyApp extends StatelessWidget {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/admin': (context) => const AdminDashboardScreen(),
+        '/admin/users': (context) => const AdminUserManagementScreen(),
+        '/admin/analytics': (context) => const AdminAnalyticsScreen(),
       },
     );
   }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:ui';
 import '../providers/sadhana_provider.dart';
+import '../services/admin_service.dart';
 import '../utils/app_theme.dart';
 import 'dart:math';
 
@@ -23,6 +24,9 @@ class _SplashScreenState extends State<SplashScreen>
   // Add particle animation states
   final List<Map<String, dynamic>> _particles = [];
   Timer? _particleTimer;
+  
+  // Admin service for checking admin status
+  final AdminService _adminService = AdminService();
 
   @override
   void initState() {
@@ -104,8 +108,17 @@ class _SplashScreenState extends State<SplashScreen>
       context,
       listen: false,
     );
+    
     if (sadhanaProvider.isLoggedIn) {
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      // Check if user is admin and navigate accordingly
+      if (_adminService.isCurrentUserAdmin()) {
+        debugPrint('Admin user detected: ${_adminService.getCurrentAdminUser()?.email}');
+        // Admin users still go to dashboard, but with admin access
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      } else {
+        // Regular user navigation
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      }
     } else {
       Navigator.pushReplacementNamed(context, '/login');
     }
@@ -136,15 +149,26 @@ class _SplashScreenState extends State<SplashScreen>
     final verticalSpacing1 = size.height * 0.05; // 5% of screen height
     final verticalSpacing2 = size.height * 0.08; // 8% of screen height
 
+    // Check if admin is detected for special effects
+    final isAdminDetected = _adminService.isCurrentUserAdmin();
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              AppTheme.primaryColor,
-              AppTheme.primaryLightColor,
-              AppTheme.softGold.withOpacity(0.9),
-            ],
+            colors: isAdminDetected 
+                ? [
+                    // Special admin gradient with gold accents
+                    AppTheme.primaryColor,
+                    const Color(0xFF1A4A6E),
+                    const Color(0xFFD8B468),
+                    AppTheme.softGold.withOpacity(0.9),
+                  ]
+                : [
+                    AppTheme.primaryColor,
+                    AppTheme.primaryLightColor,
+                    AppTheme.softGold.withOpacity(0.9),
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -165,11 +189,11 @@ class _SplashScreenState extends State<SplashScreen>
                         width: _particles[index]['size'] * (isTablet ? 1.5 : 1.0),
                         height: _particles[index]['size'] * (isTablet ? 1.5 : 1.0),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isAdminDetected ? Colors.amber : Colors.white,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.white.withOpacity(0.4),
+                              color: (isAdminDetected ? Colors.amber : Colors.white).withOpacity(0.4),
                               blurRadius: 3,
                               spreadRadius: 1,
                             ),
@@ -180,7 +204,7 @@ class _SplashScreenState extends State<SplashScreen>
                   );
                 }),
 
-                // Radial glow with responsive size
+                // Radial glow with responsive size and admin detection
                 AnimatedBuilder(
                   animation: _animationController,
                   builder: (context, child) {
@@ -190,11 +214,17 @@ class _SplashScreenState extends State<SplashScreen>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
-                          colors: [
-                            AppTheme.shimmerGold.withOpacity(0.4),
-                            AppTheme.deepGold.withOpacity(0.2),
-                            Colors.transparent,
-                          ],
+                          colors: isAdminDetected
+                              ? [
+                                  Colors.amber.withOpacity(0.6),
+                                  AppTheme.deepGold.withOpacity(0.3),
+                                  Colors.transparent,
+                                ]
+                              : [
+                                  AppTheme.shimmerGold.withOpacity(0.4),
+                                  AppTheme.deepGold.withOpacity(0.2),
+                                  Colors.transparent,
+                                ],
                           stops: const [0.0, 0.5, 1.0],
                         ),
                       ),
@@ -211,7 +241,7 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo animation with responsive size
+                      // Logo animation with responsive size and admin effects
                       AnimatedBuilder(
                         animation: _animationController,
                         builder: (context, child) {
@@ -237,31 +267,54 @@ class _SplashScreenState extends State<SplashScreen>
                                 offset: const Offset(0, 8),
                               ),
                               BoxShadow(
-                                color: AppTheme.deepGold.withOpacity(0.3),
+                                color: (isAdminDetected ? Colors.amber : AppTheme.deepGold).withOpacity(0.3),
                                 blurRadius: 25,
                                 spreadRadius: 5,
                                 offset: const Offset(0, 0),
                               ),
                             ],
                           ),
-                          child: Center(
-                            child: ShaderMask(
-                              shaderCallback:
-                                  (bounds) => const LinearGradient(
-                                    colors: [
-                                      Colors.white,
-                                      AppTheme.shimmerGold,
-                                      Colors.white,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ).createShader(bounds),
-                              child: Icon(
-                                Icons.self_improvement,
-                                size: iconSize,
-                                color: Colors.white,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Admin crown effect
+                              if (isAdminDetected)
+                                Positioned(
+                                  top: logoSize * 0.1,
+                                  child: Icon(
+                                    Icons.admin_panel_settings,
+                                    size: logoSize * 0.2,
+                                    color: Colors.amber.withOpacity(0.7),
+                                  ),
+                                ),
+                              
+                              // Main meditation icon
+                              Center(
+                                child: ShaderMask(
+                                  shaderCallback:
+                                      (bounds) => LinearGradient(
+                                        colors: isAdminDetected
+                                            ? [
+                                                Colors.white,
+                                                Colors.amber,
+                                                Colors.white,
+                                              ]
+                                            : [
+                                                Colors.white,
+                                                AppTheme.shimmerGold,
+                                                Colors.white,
+                                              ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ).createShader(bounds),
+                                  child: Icon(
+                                    Icons.self_improvement,
+                                    size: iconSize,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ),
@@ -273,47 +326,84 @@ class _SplashScreenState extends State<SplashScreen>
                         opacity: _fadeAnimation,
                         child: Container(
                           width: double.infinity,
-                          child: ShaderMask(
-                            shaderCallback:
-                                (bounds) => LinearGradient(
-                                  colors: const [
-                                    Colors.white,
-                                    AppTheme.shimmerGold,
-                                    Colors.white,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  stops: [0.0, 0.5, 1.0],
-                                  tileMode: TileMode.clamp,
-                                ).createShader(bounds),
-                            child: Text(
-                              "Rhythmbhara Tara Sadhana",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: titleFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: isSmallDevice ? 0.5 : 1.0,
-                                height: 1.2, // Line height for better readability
-                                shadows: const [
-                                  Shadow(
-                                    color: Colors.black26,
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2),
+                          child: Column(
+                            children: [
+                              ShaderMask(
+                                shaderCallback:
+                                    (bounds) => LinearGradient(
+                                      colors: isAdminDetected
+                                          ? [
+                                              Colors.white,
+                                              Colors.amber,
+                                              Colors.white,
+                                            ]
+                                          : [
+                                              Colors.white,
+                                              AppTheme.shimmerGold,
+                                              Colors.white,
+                                            ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      stops: [0.0, 0.5, 1.0],
+                                      tileMode: TileMode.clamp,
+                                    ).createShader(bounds),
+                                child: Text(
+                                  "Rhythmbhara Tara Sadhana",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: titleFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: isSmallDevice ? 0.5 : 1.0,
+                                    height: 1.2, // Line height for better readability
+                                    shadows: const [
+                                      Shadow(
+                                        color: Colors.black26,
+                                        blurRadius: 4,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                  // Handle text overflow for very small screens
+                                  overflow: TextOverflow.visible,
+                                  softWrap: true,
+                                ),
                               ),
-                              // Handle text overflow for very small screens
-                              overflow: TextOverflow.visible,
-                              softWrap: true,
-                            ),
+                              
+                              // Admin badge if detected
+                              if (isAdminDetected) ...[
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.amber.withOpacity(0.5),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'ADMIN ACCESS DETECTED',
+                                    style: TextStyle(
+                                      color: Colors.amber,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ),
 
                       SizedBox(height: verticalSpacing2),
 
-                      // Loading indicator with responsive size
+                      // Loading indicator with responsive size and admin styling
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: TweenAnimationBuilder<double>(
@@ -326,9 +416,9 @@ class _SplashScreenState extends State<SplashScreen>
                               child: CircularProgressIndicator(
                                 value: null,
                                 strokeWidth: isTablet ? 4.0 : 3.0,
-                                backgroundColor: Colors.white.withOpacity(0.2),
+                                backgroundColor: (isAdminDetected ? Colors.amber : Colors.white).withOpacity(0.2),
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white.withOpacity(0.8),
+                                  (isAdminDetected ? Colors.amber : Colors.white).withOpacity(0.8),
                                 ),
                               ),
                             );

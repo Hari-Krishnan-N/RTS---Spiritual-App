@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
 import '../providers/sadhana_provider.dart';
+import '../services/admin_service.dart';
 import '../utils/app_theme.dart';
 import '../widgets/dashboard_widgets.dart';
 import '../screens/practice_screens_controller.dart';
+import '../screens/admin_dashboard_screen.dart';
 import '../utils/navigation_transitions.dart';
 import 'profile_screen.dart';
 import 'status_screen.dart';
@@ -34,6 +36,9 @@ class _DashboardScreenState extends State<DashboardScreen>
   
   // FIXED: Add flag to prevent repeated redirects
   bool _hasCheckedAuth = false;
+
+  // Admin service for checking admin status
+  final AdminService _adminService = AdminService();
 
   @override
   void initState() {
@@ -82,9 +87,15 @@ class _DashboardScreenState extends State<DashboardScreen>
       _hasCheckedAuth = true;
     }
 
+    // Check if current user is admin and show admin button
+    final isAdmin = _adminService.isCurrentUserAdmin();
+
     // List of screen widgets
     final List<Widget> screens = [
-      DashboardHomeScreen(onNavigateToTab: _setSelectedIndex),
+      DashboardHomeScreen(
+        onNavigateToTab: _setSelectedIndex,
+        isAdmin: isAdmin,
+      ),
       const StatusScreen(),
       const ProfileScreen(),
     ];
@@ -234,10 +245,12 @@ class _DashboardScreenState extends State<DashboardScreen>
 
 class DashboardHomeScreen extends StatefulWidget {
   final Function(int) onNavigateToTab;
+  final bool isAdmin;
   
   const DashboardHomeScreen({
     super.key,
     required this.onNavigateToTab,
+    this.isAdmin = false,
   });
 
   @override
@@ -313,32 +326,101 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                     padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                     child: Column(
                       children: [
-                        // User greeting row
+                        // User greeting row with admin button
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             // Greeting text
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Namaste,",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white.withValues(alpha: 0.8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Namaste,",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.white.withValues(alpha: 0.8),
+                                        ),
+                                      ),
+                                      if (widget.isAdmin) ...[
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.amber.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: Colors.amber.withOpacity(0.5),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'ADMIN',
+                                            style: TextStyle(
+                                              color: Colors.amber,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  username,
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    username,
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+
+                            // Admin access button (if admin)
+                            if (widget.isAdmin) ...[
+                              GestureDetector(
+                                onTap: () {
+                                  HapticFeedback.lightImpact();
+                                  Navigator.push(
+                                    context,
+                                    CupertinoStylePageRoute(
+                                      page: const AdminDashboardScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.amber.withOpacity(0.5),
+                                      width: 2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.amber.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        spreadRadius: 0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.admin_panel_settings,
+                                    color: Colors.amber,
+                                    size: 24,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                            ],
 
                             // User avatar with decoration - clickable to profile
                             GestureDetector(
@@ -350,12 +432,16 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.7),
-                                    width: 2,
+                                    color: widget.isAdmin 
+                                        ? Colors.amber.withOpacity(0.7)
+                                        : Colors.white.withValues(alpha: 0.7),
+                                    width: widget.isAdmin ? 3 : 2,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.2),
+                                      color: widget.isAdmin
+                                          ? Colors.amber.withOpacity(0.3)
+                                          : Colors.black.withValues(alpha: 0.2),
                                       blurRadius: 10,
                                       spreadRadius: 0,
                                     ),
