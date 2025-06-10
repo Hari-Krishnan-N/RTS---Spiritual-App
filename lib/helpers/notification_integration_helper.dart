@@ -175,8 +175,7 @@ class NotificationIntegrationHelper {
       final userId = FirebaseAuth.instance.currentUser?.uid;
       if (userId == null) return false;
 
-      final today = DateTime.now();
-      // Removed unused variable todayString
+      // Note: Future implementation would check practice completion for today
       
       // This would check your existing practice completion data structure
       // Adjust according to your actual database structure

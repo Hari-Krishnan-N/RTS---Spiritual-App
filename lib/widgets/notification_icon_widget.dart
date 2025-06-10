@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/notification_provider.dart';
-import '../utils/app_theme.dart';
 
 class NotificationIconWithGlow extends StatefulWidget {
   final VoidCallback onTap;
@@ -164,16 +163,16 @@ class _NotificationIconWithGlowState extends State<NotificationIconWithGlow>
                                   boxShadow: [
                                     // Inner glow - AMBER COLOR
                                     BoxShadow(
-                                      color: Colors.amber.withOpacity(
-                                        0.4 + (0.6 * _glowAnimation.value),
+                                      color: Colors.amber.withValues(
+                                        alpha: 0.4 + (0.6 * _glowAnimation.value),
                                       ),
                                       blurRadius: 15 + (15 * _glowAnimation.value),
                                       spreadRadius: 2 + (4 * _glowAnimation.value),
                                     ),
                                     // Outer glow - AMBER COLOR
                                     BoxShadow(
-                                      color: Colors.amber.withOpacity(
-                                        0.2 + (0.3 * _glowAnimation.value),
+                                      color: Colors.amber.withValues(
+                                        alpha: 0.2 + (0.3 * _glowAnimation.value),
                                       ),
                                       blurRadius: 25 + (20 * _glowAnimation.value),
                                       spreadRadius: 5 + (8 * _glowAnimation.value),
@@ -187,16 +186,16 @@ class _NotificationIconWithGlowState extends State<NotificationIconWithGlow>
                               decoration: BoxDecoration(
                                 color: hasUnreadMessages 
                                     ? (hasNewNotifications 
-                                        ? Colors.amber.withOpacity(0.2)  // AMBER for new notifications
-                                        : Colors.red.withOpacity(0.15))
-                                    : Colors.white.withOpacity(0.08),
+                                        ? Colors.amber.withValues(alpha: 0.2)  // AMBER for new notifications
+                                        : Colors.red.withValues(alpha: 0.15))
+                                    : Colors.white.withValues(alpha: 0.08),
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: hasUnreadMessages
                                       ? (hasNewNotifications 
-                                          ? Colors.amber.withOpacity(0.6)  // AMBER border for new notifications
-                                          : Colors.red.withOpacity(0.4))
-                                      : Colors.white.withOpacity(0.2),
+                                          ? Colors.amber.withValues(alpha: 0.6)  // AMBER border for new notifications
+                                          : Colors.red.withValues(alpha: 0.4))
+                                      : Colors.white.withValues(alpha: 0.2),
                                   width: hasUnreadMessages ? 2 : 1,
                                 ),
                               ),
@@ -237,7 +236,7 @@ class _NotificationIconWithGlowState extends State<NotificationIconWithGlow>
                                       ? LinearGradient(
                                           colors: [
                                             Colors.amber,
-                                            Colors.amber.withOpacity(0.8),
+                                            Colors.amber.withValues(alpha: 0.8),
                                           ],
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
@@ -258,8 +257,8 @@ class _NotificationIconWithGlowState extends State<NotificationIconWithGlow>
                                   boxShadow: [
                                     BoxShadow(
                                       color: hasNewNotifications
-                                          ? Colors.amber.withOpacity(0.6)  // AMBER shadow for new notifications
-                                          : Colors.red.withOpacity(0.5),
+                                          ? Colors.amber.withValues(alpha: 0.6)  // AMBER shadow for new notifications
+                                          : Colors.red.withValues(alpha: 0.5),
                                       blurRadius: hasNewNotifications ? 10 : 6,
                                       spreadRadius: hasNewNotifications ? 3 : 1,
                                     ),
@@ -295,8 +294,8 @@ class _NotificationIconWithGlowState extends State<NotificationIconWithGlow>
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: Colors.amber.withOpacity(  // AMBER glow ring
-                                    0.3 + (0.5 * _glowAnimation.value),
+                                  color: Colors.amber.withValues(  // AMBER glow ring
+                                    alpha: 0.3 + (0.5 * _glowAnimation.value),
                                   ),
                                   width: 2 + (4 * _glowAnimation.value),
                                 ),
@@ -327,7 +326,7 @@ class _NotificationIconWithGlowState extends State<NotificationIconWithGlow>
                             border: Border.all(color: Colors.white, width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.green.withOpacity(0.4),
+                                color: Colors.green.withValues(alpha: 0.4),
                                 blurRadius: 6,
                                 spreadRadius: 1,
                               ),
@@ -368,7 +367,7 @@ class _NotificationIconWithGlowState extends State<NotificationIconWithGlow>
     } else if (hasUnread) {
       return Colors.red; // Red for unread notifications
     } else {
-      return widget.iconColor ?? Colors.white.withOpacity(0.7); // Muted for all read
+      return widget.iconColor ?? Colors.white.withValues(alpha: 0.7); // Muted for all read
     }
   }
 }
@@ -446,12 +445,12 @@ class _SimpleNotificationIconState extends State<SimpleNotificationIcon>
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: unreadCount > 0 
-                            ? Colors.red.withOpacity(0.1)
+                            ? Colors.red.withValues(alpha: 0.1)
                             : Colors.transparent,
                         shape: BoxShape.circle,
                         border: unreadCount > 0 
                             ? Border.all(
-                                color: Colors.red.withOpacity(0.3),
+                                color: Colors.red.withValues(alpha: 0.3),
                                 width: 1,
                               )
                             : null,
@@ -465,7 +464,7 @@ class _SimpleNotificationIconState extends State<SimpleNotificationIcon>
                         size: widget.size,
                         color: unreadCount > 0 
                             ? Colors.red
-                            : (widget.iconColor ?? Colors.white.withOpacity(0.7)),
+                            : (widget.iconColor ?? Colors.white.withValues(alpha: 0.7)),
                       ),
                     ),
                     
@@ -488,7 +487,7 @@ class _SimpleNotificationIconState extends State<SimpleNotificationIcon>
                             border: Border.all(color: Colors.white, width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.red.withOpacity(0.4),
+                                color: Colors.red.withValues(alpha: 0.4),
                                 blurRadius: 4,
                                 spreadRadius: 1,
                               ),
@@ -521,7 +520,7 @@ class _SimpleNotificationIconState extends State<SimpleNotificationIcon>
                             border: Border.all(color: Colors.white, width: 2),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.green.withOpacity(0.4),
+                                color: Colors.green.withValues(alpha: 0.4),
                                 blurRadius: 3,
                                 spreadRadius: 1,
                               ),
@@ -565,10 +564,10 @@ class NotificationStatusWidget extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: isRead 
-            ? Colors.blue.withOpacity(0.1)
+            ? Colors.blue.withValues(alpha: 0.1)
             : (isDelivered 
-                ? Colors.orange.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.1)),
+                ? Colors.orange.withValues(alpha: 0.1)
+                : Colors.grey.withValues(alpha: 0.1)),
         shape: BoxShape.circle,
       ),
       child: Center(

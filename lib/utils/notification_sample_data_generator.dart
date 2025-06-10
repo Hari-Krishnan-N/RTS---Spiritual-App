@@ -1,15 +1,13 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../services/improved_notification_service.dart';
-import '../utils/notification_utils.dart';
+
 
 /// Sample data generator for testing the notification system
 /// Provides realistic test data for development and testing
 class NotificationSampleDataGenerator {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final Random _random = Random();
 
   // Sample notification templates
@@ -497,7 +495,6 @@ class NotificationSampleDataGenerator {
       
       // Simulate 30 days of app usage
       for (int day = 30; day >= 0; day--) {
-        final date = DateTime.now().subtract(Duration(days: day));
         
         // Morning practice reminder (80% chance)
         if (_random.nextDouble() < 0.8) {
@@ -536,7 +533,7 @@ class NotificationSampleDataGenerator {
 /// Run with: dart run lib/utils/notification_sample_data_generator.dart
 void main(List<String> arguments) async {
   if (arguments.isEmpty) {
-    print('''
+    debugPrint('''
 Notification Sample Data Generator
 
 Usage:
@@ -571,7 +568,7 @@ Examples:
         
       case 'notifications':
         if (arguments.length < 2) {
-          print('Error: userId required');
+          debugPrint('Error: userId required');
           return;
         }
         await NotificationSampleDataGenerator.generateSampleNotifications(userId: arguments[1]);
@@ -598,7 +595,7 @@ Examples:
         
       case 'migration':
         if (arguments.length < 2) {
-          print('Error: userId required');
+          debugPrint('Error: userId required');
           return;
         }
         await NotificationSampleDataGenerator.generateMigrationTestData(userId: arguments[1]);
@@ -606,7 +603,7 @@ Examples:
         
       case 'realistic':
         if (arguments.length < 2) {
-          print('Error: userId required');
+          debugPrint('Error: userId required');
           return;
         }
         await NotificationSampleDataGenerator.generateRealisticUsagePattern(userId: arguments[1]);
@@ -617,9 +614,9 @@ Examples:
         break;
         
       default:
-        print('Error: Unknown command "$command"');
+        debugPrint('Error: Unknown command "$command"');
     }
   } catch (e) {
-    print('Error: $e');
+    debugPrint('Error: $e');
   }
 }

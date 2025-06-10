@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
+import 'dart:math' as math;
 import '../providers/sadhana_provider.dart';
 import '../providers/notification_provider.dart';
 import '../services/admin_service.dart';
@@ -11,15 +12,35 @@ import '../screens/practice_screens_controller.dart';
 import '../screens/admin_dashboard_screen.dart';
 import '../screens/notifications_screen.dart';
 import '../utils/navigation_transitions.dart';
+
 import 'profile_screen.dart';
 import 'status_screen.dart';
 
-// Extension to convert opacity values to alpha (0-255)
-extension ColorExtension on Color {
-  Color withValues({double? alpha}) {
+/// Utility function to safely clamp alpha values
+double _clampAlpha(double value) {
+  return math.max(0.0, math.min(1.0, value));
+}
+
+/// Extension to safely handle opacity values for all color operations
+extension SafeColorExtension on Color {
+  Color safeWithOpacity(double opacity) {
+    return withValues(alpha: _clampAlpha(opacity));
+  }
+  
+  Color safeWithAlpha(double alpha) {
+    return withValues(alpha: _clampAlpha(alpha));
+  }
+  
+  // FIXED: Safe replacement for withValues method
+  Color safeWithValues({double? alpha}) {
     if (alpha == null) return this;
-    int alphaInt = (alpha * 255).round();
-    return withAlpha(alphaInt);
+    final clampedAlpha = _clampAlpha(alpha);
+    return Color.fromARGB(
+      (clampedAlpha * 255).toInt(),
+      r.toInt(),
+      g.toInt(),
+      b.toInt(),
+    );
   }
 }
 
@@ -136,7 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: Colors.black.safeWithOpacity(0.15),
                 blurRadius: 30,
                 offset: const Offset(0, -5),
               ),
@@ -151,14 +172,14 @@ class _DashboardScreenState extends State<DashboardScreen>
               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: Colors.white.safeWithOpacity(0.8),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(25),
                     topRight: Radius.circular(25),
                   ),
                   border: Border(
                     top: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: Colors.white.safeWithOpacity(0.5),
                       width: 1.5,
                     ),
                   ),
@@ -172,7 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   },
                   backgroundColor: Colors.transparent,
                   selectedItemColor: AppTheme.accentColor,
-                  unselectedItemColor: Colors.grey.withValues(alpha: 0.7),
+                  unselectedItemColor: Colors.grey.safeWithOpacity(0.7),
                   selectedLabelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 12,
@@ -192,7 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           shape: BoxShape.circle,
                           color:
                               _selectedIndex == 0
-                                  ? AppTheme.accentColor.withValues(alpha: 0.2)
+                                  ? AppTheme.accentColor.safeWithOpacity(0.2)
                                   : Colors.transparent,
                         ),
                         child: const Icon(Icons.home_rounded, size: 26),
@@ -207,7 +228,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           shape: BoxShape.circle,
                           color:
                               _selectedIndex == 1
-                                  ? AppTheme.accentColor.withValues(alpha: 0.2)
+                                  ? AppTheme.accentColor.safeWithOpacity(0.2)
                                   : Colors.transparent,
                         ),
                         child: const Icon(
@@ -225,7 +246,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           shape: BoxShape.circle,
                           color:
                               _selectedIndex == 2
-                                  ? AppTheme.accentColor.withValues(alpha: 0.2)
+                                  ? AppTheme.accentColor.safeWithOpacity(0.2)
                                   : Colors.transparent,
                         ),
                         child: const Icon(Icons.person_rounded, size: 26),
@@ -299,17 +320,17 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
     final provider = Provider.of<SadhanaProvider>(context);
     final username = provider.username;
     final photoUrl = provider.userPhotoUrl;
-    // Removed unused variable 'size'
 
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: AppTheme.dashboardGradient,
-          image: const DecorationImage(
-            image: AssetImage('assets/images/subtle_pattern.png'),
-            repeat: ImageRepeat.repeat,
-            opacity: 0.05, // Very subtle pattern overlay
-          ),
+          // FIXED: Commented out missing asset to prevent error
+          // image: const DecorationImage(
+          //   image: AssetImage('assets/images/subtle_pattern.png'),
+          //   repeat: ImageRepeat.repeat,
+          //   opacity: 0.05, // Very subtle pattern overlay
+          // ),
         ),
         child: SafeArea(
           child: CustomScrollView(
@@ -347,9 +368,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                         "Namaste,",
                                         style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white.withValues(
-                                            alpha: 0.8,
-                                          ),
+                                          color: Colors.white.safeWithOpacity(0.8),
                                         ),
                                       ),
                                       if (widget.isAdmin) ...[
@@ -360,16 +379,10 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                             vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Colors.amber.withValues(
-                                              alpha: 0.2,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
+                                            color: Colors.amber.safeWithOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(12),
                                             border: Border.all(
-                                              color: Colors.amber.withValues(
-                                                alpha: 0.5,
-                                              ),
+                                              color: Colors.amber.safeWithOpacity(0.5),
                                             ),
                                           ),
                                           child: const Text(
@@ -400,8 +413,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                             // Notification icon
                             Consumer<NotificationProvider>(
                               builder: (context, notificationProvider, child) {
-                                final unreadCount =
-                                    notificationProvider.unreadCount;
+                                final unreadCount = notificationProvider.unreadCount;
 
                                 return GestureDetector(
                                   onTap: () {
@@ -416,27 +428,23 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                   child: Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.1),
+                                      color: Colors.white.safeWithOpacity(0.1),
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
-                                        color:
-                                            unreadCount > 0
-                                                ? AppTheme.accentColor
-                                                    .withValues(alpha: 0.5)
-                                                : Colors.white.withValues(alpha: 0.2),
+                                        color: unreadCount > 0
+                                            ? AppTheme.accentColor.safeWithOpacity(0.5)
+                                            : Colors.white.safeWithOpacity(0.2),
                                         width: unreadCount > 0 ? 2 : 1,
                                       ),
-                                      boxShadow:
-                                          unreadCount > 0
-                                              ? [
-                                                BoxShadow(
-                                                  color: AppTheme.accentColor
-                                                      .withValues(alpha: 0.3),
-                                                  blurRadius: 8,
-                                                  spreadRadius: 0,
-                                                ),
-                                              ]
-                                              : null,
+                                      boxShadow: unreadCount > 0
+                                          ? [
+                                              BoxShadow(
+                                                color: AppTheme.accentColor.safeWithOpacity(0.3),
+                                                blurRadius: 8,
+                                                spreadRadius: 0,
+                                              ),
+                                            ]
+                                          : null,
                                     ),
                                     child: Stack(
                                       children: [
@@ -444,12 +452,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                           unreadCount > 0
                                               ? Icons.notifications_active
                                               : Icons.notifications_outlined,
-                                          color:
-                                              unreadCount > 0
-                                                  ? AppTheme.accentColor
-                                                  : Colors.white.withValues(
-                                                    alpha: 0.7,
-                                                  ),
+                                          color: unreadCount > 0
+                                              ? AppTheme.accentColor
+                                              : Colors.white.safeWithOpacity(0.7),
                                           size: 24,
                                         ),
                                         if (unreadCount > 0)
@@ -507,15 +512,15 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                 child: Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.amber.withValues(alpha: 0.2),
+                                    color: Colors.amber.safeWithOpacity(0.2),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: Colors.amber.withValues(alpha: 0.5),
+                                      color: Colors.amber.safeWithOpacity(0.5),
                                       width: 2,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.amber.withValues(alpha: 0.3),
+                                        color: Colors.amber.safeWithOpacity(0.3),
                                         blurRadius: 8,
                                         spreadRadius: 0,
                                       ),
@@ -535,30 +540,22 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.lightImpact();
-                                widget.onNavigateToTab(
-                                  2,
-                                ); // Navigate to profile tab
+                                widget.onNavigateToTab(2); // Navigate to profile tab
                               },
                               child: Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color:
-                                        widget.isAdmin
-                                            ? Colors.amber.withValues(alpha: 0.7)
-                                            : Colors.white.withValues(
-                                              alpha: 0.7,
-                                            ),
+                                    color: widget.isAdmin
+                                        ? Colors.amber.safeWithOpacity(0.7)
+                                        : Colors.white.safeWithOpacity(0.7),
                                     width: widget.isAdmin ? 3 : 2,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color:
-                                          widget.isAdmin
-                                              ? Colors.amber.withValues(alpha: 0.3)
-                                              : Colors.black.withValues(
-                                                alpha: 0.2,
-                                              ),
+                                      color: widget.isAdmin
+                                          ? Colors.amber.safeWithOpacity(0.3)
+                                          : Colors.black.safeWithOpacity(0.2),
                                       blurRadius: 10,
                                       spreadRadius: 0,
                                     ),
@@ -568,21 +565,15 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                   tag: 'profile_avatar',
                                   child: CircleAvatar(
                                     radius: 28,
-                                    backgroundColor: Colors.white.withValues(
-                                      alpha: 0.2,
-                                    ),
-                                    backgroundImage:
-                                        photoUrl != null
-                                            ? NetworkImage(photoUrl)
-                                            : null,
-                                    child:
-                                        photoUrl == null
-                                            ? const Icon(
-                                              Icons.person,
-                                              color: Colors.white,
-                                              size: 28,
-                                            )
-                                            : null,
+                                    backgroundColor: Colors.white.safeWithOpacity(0.2),
+                                    backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+                                    child: photoUrl == null
+                                        ? const Icon(
+                                            Icons.person,
+                                            color: Colors.white,
+                                            size: 28,
+                                          )
+                                        : null,
                                   ),
                                 ),
                               ),
@@ -612,7 +603,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
+                                    color: Colors.black.safeWithOpacity(0.3),
                                     blurRadius: 16,
                                     spreadRadius: 15,
                                     offset: const Offset(0, 0),
@@ -625,9 +616,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                   // Animated particle effect (simulated)
                                   TweenAnimationBuilder<double>(
                                     tween: Tween<double>(begin: 0.0, end: 1.0),
-                                    duration: const Duration(
-                                      milliseconds: 2000,
-                                    ),
+                                    duration: const Duration(milliseconds: 2000),
                                     curve: Curves.easeInOut,
                                     builder: (context, value, child) {
                                       return Opacity(
@@ -639,12 +628,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                             shape: BoxShape.circle,
                                             gradient: RadialGradient(
                                               colors: [
-                                                Colors.white.withValues(
-                                                  alpha: 0.8 * value,
-                                                ),
-                                                Colors.white.withValues(
-                                                  alpha: 0.1 * value,
-                                                ),
+                                                Colors.white.safeWithOpacity(0.8 * value),
+                                                Colors.white.safeWithOpacity(0.1 * value),
                                                 Colors.transparent,
                                               ],
                                               stops: const [0.0, 0.5, 1.0],
@@ -658,9 +643,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                   // Improved animated pulse effect
                                   TweenAnimationBuilder<double>(
                                     tween: Tween<double>(begin: 0.8, end: 1.2),
-                                    duration: const Duration(
-                                      milliseconds: 2000,
-                                    ),
+                                    duration: const Duration(milliseconds: 2000),
                                     curve: Curves.easeInOutSine,
                                     builder: (context, value, child) {
                                       return Container(
@@ -670,12 +653,8 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                           shape: BoxShape.circle,
                                           gradient: RadialGradient(
                                             colors: [
-                                              Colors.white.withValues(
-                                                alpha: 0.3,
-                                              ),
-                                              Colors.white.withValues(
-                                                alpha: 0.1,
-                                              ),
+                                              Colors.white.safeWithOpacity(0.3),
+                                              Colors.white.safeWithOpacity(0.1),
                                               Colors.transparent,
                                             ],
                                           ),
@@ -686,16 +665,15 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
 
                                   // Meditation icon with enhanced shimmer effect
                                   ShaderMask(
-                                    shaderCallback:
-                                        (bounds) => const LinearGradient(
-                                          colors: [
-                                            Colors.white,
-                                            AppTheme.shimmerGold,
-                                            Colors.white,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ).createShader(bounds),
+                                    shaderCallback: (bounds) => const LinearGradient(
+                                      colors: [
+                                        Colors.white,
+                                        AppTheme.shimmerGold,
+                                        Colors.white,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ).createShader(bounds),
                                     child: const Icon(
                                       Icons.self_improvement,
                                       size: 80,
@@ -744,15 +722,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF4A7843), // Muted green to match image
                           Color(0xFF6B9B5A), // Lighter muted green
                         ],
-                        shadowColor: const Color(
-                          0xFF4A7843,
-                        ).withValues(alpha: 0.4),
-                        iconContainerColor: Colors.white.withValues(alpha: 0.2),
-                        onTap:
-                            () => _navigateToPractice(
-                              context,
-                              0, // Index for JebamScreen
-                            ),
+                        shadowColor: const Color(0xFF4A7843).safeWithOpacity(0.4),
+                        iconContainerColor: Colors.white.safeWithOpacity(0.2),
+                        onTap: () => _navigateToPractice(context, 0), // Index for JebamScreen
                       ),
                     ),
 
@@ -776,15 +748,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF2E5B5B), // Muted teal to match image
                           Color(0xFF4A7A7A), // Lighter muted teal
                         ],
-                        shadowColor: const Color(
-                          0xFF2E5B5B,
-                        ).withValues(alpha: 0.4),
-                        iconContainerColor: Colors.white.withValues(alpha: 0.2),
-                        onTap:
-                            () => _navigateToPractice(
-                              context,
-                              1, // Index for TharpanamScreen
-                            ),
+                        shadowColor: const Color(0xFF2E5B5B).safeWithOpacity(0.4),
+                        iconContainerColor: Colors.white.safeWithOpacity(0.2),
+                        onTap: () => _navigateToPractice(context, 1), // Index for TharpanamScreen
                       ),
                     ),
 
@@ -808,15 +774,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF8B4513), // Rich brown to match image
                           Color(0xFFA0603C), // Lighter brown
                         ],
-                        shadowColor: const Color(
-                          0xFF8B4513,
-                        ).withValues(alpha: 0.4),
-                        iconContainerColor: Colors.white.withValues(alpha: 0.2),
-                        onTap:
-                            () => _navigateToPractice(
-                              context,
-                              2, // Index for HomamScreen
-                            ),
+                        shadowColor: const Color(0xFF8B4513).safeWithOpacity(0.4),
+                        iconContainerColor: Colors.white.safeWithOpacity(0.2),
+                        onTap: () => _navigateToPractice(context, 2), // Index for HomamScreen
                       ),
                     ),
 
@@ -840,15 +800,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF4A3A6B), // Muted purple to match image
                           Color(0xFF6B5A8A), // Lighter muted purple
                         ],
-                        shadowColor: const Color(
-                          0xFF4A3A6B,
-                        ).withValues(alpha: 0.4),
-                        iconContainerColor: Colors.white.withValues(alpha: 0.2),
-                        onTap:
-                            () => _navigateToPractice(
-                              context,
-                              3, // Index for DhaanamScreen
-                            ),
+                        shadowColor: const Color(0xFF4A3A6B).safeWithOpacity(0.4),
+                        iconContainerColor: Colors.white.safeWithOpacity(0.2),
+                        onTap: () => _navigateToPractice(context, 3), // Index for DhaanamScreen
                       ),
                     ),
                   ]),

@@ -445,7 +445,7 @@ class _SignupScreenState extends State<SignupScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _errorColor.withOpacity(0.2),
+                color: _errorColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: _errorColor, width: 1),
               ),
@@ -570,12 +570,7 @@ class _SignupScreenState extends State<SignupScreen>
     }
   }
 
-  // Format time remaining
-  String _formatTime(int seconds) {
-    int minutes = seconds ~/ 60;
-    int remainingSeconds = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
-  }
+
 
   // FIXED: Complete signup with better state management
   Future<void> _completeSignup() async {
@@ -652,9 +647,9 @@ class _SignupScreenState extends State<SignupScreen>
       // Now we can login through the provider
       await sadhanaProvider.login(_emailController.text.trim(), _passwordController.text);
 
-      if (!mounted) return;
-      
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      }
       
     } catch (e) {
       // FIXED: Don't mark as completed if there's an error
@@ -770,10 +765,10 @@ class _SignupScreenState extends State<SignupScreen>
                               alignment: Alignment.topLeft,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
+                                  color: Colors.white.withValues(alpha: 0.15),
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     width: 1,
                                   ),
                                 ),
@@ -826,7 +821,7 @@ class _SignupScreenState extends State<SignupScreen>
                               child: ShaderMask(
                                 shaderCallback: (Rect bounds) {
                                   return LinearGradient(
-                                    colors: [_textColor, _textColor.withOpacity(0.7)],
+                                    colors: [_textColor, _textColor.withValues(alpha: 0.7)],
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
                                   ).createShader(bounds);
@@ -929,8 +924,8 @@ class _SignupScreenState extends State<SignupScreen>
             shape: BoxShape.circle,
             gradient: RadialGradient(
               colors: [
-                _accentColor.withOpacity(0.2),
-                _accentColor.withOpacity(0.08),
+                _accentColor.withValues(alpha: 0.2),
+                _accentColor.withValues(alpha: 0.08),
                 Colors.transparent,
               ],
               stops: const [0.4, 0.7, 1.0],
@@ -986,7 +981,7 @@ class _SignupScreenState extends State<SignupScreen>
         Container(
           width: 30,
           height: 2,
-          color: _currentStep >= 1 ? _accentColor : Colors.white.withOpacity(0.3),
+          color: _currentStep >= 1 ? _accentColor : Colors.white.withValues(alpha: 0.3),
         ),
         _buildProgressDot(1, _currentStep >= 1),
       ],
@@ -998,7 +993,7 @@ class _SignupScreenState extends State<SignupScreen>
       width: 12,
       height: 12,
       decoration: BoxDecoration(
-        color: isActive ? _accentColor : Colors.white.withOpacity(0.3),
+        color: isActive ? _accentColor : Colors.white.withValues(alpha: 0.3),
         shape: BoxShape.circle,
       ),
     );
@@ -1090,8 +1085,8 @@ class _SignupScreenState extends State<SignupScreen>
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: _isEmailVerified 
-                        ? _successColor.withOpacity(0.2)
-                        : _accentColor.withOpacity(0.2),
+                        ? _successColor.withValues(alpha: 0.2)
+                        : _accentColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: _isEmailVerified ? _successColor : _accentColor, 
@@ -1160,7 +1155,7 @@ class _SignupScreenState extends State<SignupScreen>
                     Text(
                       'Didn\'t receive the email?',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontSize: isSmallScreen ? 12 : 14,
                       ),
                     ),
@@ -1174,7 +1169,7 @@ class _SignupScreenState extends State<SignupScreen>
                             : 'Resend Email',
                         style: TextStyle(
                           color: _resendCountdown > 0 || _isResendingCode || _verificationAttempts >= 70
-                              ? Colors.white.withOpacity(0.5)
+                              ? Colors.white.withValues(alpha: 0.5)
                               : _accentColor,
                           fontSize: isSmallScreen ? 12 : 14,
                           fontWeight: FontWeight.w500,
@@ -1232,7 +1227,7 @@ class _SignupScreenState extends State<SignupScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: _successColor.withOpacity(0.2),
+                color: _successColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: _successColor, width: 1),
               ),
@@ -1307,7 +1302,7 @@ class _SignupScreenState extends State<SignupScreen>
               suffixIcon: IconButton(
                 icon: Icon(
                   _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                  color: _textColor.withOpacity(0.7),
+                  color: _textColor.withValues(alpha: 0.7),
                 ),
                 onPressed: () {
                   setState(() {
@@ -1339,7 +1334,7 @@ class _SignupScreenState extends State<SignupScreen>
               suffixIcon: IconButton(
                 icon: Icon(
                   _isConfirmPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                  color: _textColor.withOpacity(0.7),
+                  color: _textColor.withValues(alpha: 0.7),
                 ),
                 onPressed: () {
                   setState(() {
@@ -1394,8 +1389,8 @@ class _SignupScreenState extends State<SignupScreen>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Colors.white.withOpacity(0),
-                          Colors.white.withOpacity(0.8),
+                          Colors.white.withValues(alpha: 0),
+                          Colors.white.withValues(alpha: 0.8),
                         ],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
@@ -1408,7 +1403,7 @@ class _SignupScreenState extends State<SignupScreen>
                   child: Text(
                     "OR",
                     style: TextStyle(
-                      color: _textColor.withOpacity(0.9),
+                      color: _textColor.withValues(alpha: 0.9),
                       fontWeight: FontWeight.bold,
                       fontSize: isSmallScreen ? 12 : 14,
                     ),
@@ -1420,8 +1415,8 @@ class _SignupScreenState extends State<SignupScreen>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Colors.white.withOpacity(0.8),
-                          Colors.white.withOpacity(0),
+                          Colors.white.withValues(alpha: 0.8),
+                          Colors.white.withValues(alpha: 0),
                         ],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
@@ -1457,7 +1452,7 @@ class _SignupScreenState extends State<SignupScreen>
               Text(
                 'Already have an account? ',
                 style: TextStyle(
-                  color: _textColor.withOpacity(0.9),
+                  color: _textColor.withValues(alpha: 0.9),
                   fontSize: isSmallScreen ? 14 : 16,
                 ),
               ),
@@ -1578,7 +1573,7 @@ class _SignupScreenState extends State<SignupScreen>
           disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               width: 1.0,
             ),
           ),
@@ -1624,7 +1619,7 @@ class _SignupScreenState extends State<SignupScreen>
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: _accentColor.withOpacity(0.3),
+            color: _accentColor.withValues(alpha: 0.3),
             blurRadius: 15,
             spreadRadius: 0,
             offset: const Offset(0, 4),
@@ -1636,8 +1631,8 @@ class _SignupScreenState extends State<SignupScreen>
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(14),
-          splashColor: Colors.white.withOpacity(0.15),
-          highlightColor: Colors.white.withOpacity(0.08),
+          splashColor: Colors.white.withValues(alpha: 0.15),
+          highlightColor: Colors.white.withValues(alpha: 0.08),
           child: Padding(
             padding: EdgeInsets.symmetric(
               vertical: isSmallScreen ? 12 : 14,
@@ -1697,7 +1692,7 @@ class _SignupScreenState extends State<SignupScreen>
         border: Border.all(color: _accentColor, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: _accentColor.withOpacity(0.12),
+            color: _accentColor.withValues(alpha: 0.12),
             blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, 2),
@@ -1709,8 +1704,8 @@ class _SignupScreenState extends State<SignupScreen>
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(14),
-          splashColor: _accentColor.withOpacity(0.15),
-          highlightColor: _accentColor.withOpacity(0.08),
+          splashColor: _accentColor.withValues(alpha: 0.15),
+          highlightColor: _accentColor.withValues(alpha: 0.08),
           child: Padding(
             padding: EdgeInsets.symmetric(
               vertical: isSmallScreen ? 12 : 14,
@@ -1782,8 +1777,8 @@ class _SignupScreenState extends State<SignupScreen>
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(14),
-          splashColor: Colors.grey.withOpacity(0.15),
-          highlightColor: Colors.grey.withOpacity(0.08),
+          splashColor: Colors.grey.withValues(alpha: 0.15),
+          highlightColor: Colors.grey.withValues(alpha: 0.08),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
             child: isLoading
@@ -1833,9 +1828,9 @@ class _SignupScreenState extends State<SignupScreen>
       final provider = Provider.of<SadhanaProvider>(context, listen: false);
       await provider.signInWithGoogle();
 
-      if (!mounted) return;
-
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      }
     } catch (e) {
       _showErrorMessage("Google Sign-In failed: ${e.toString()}");
     }

@@ -623,7 +623,7 @@ class NotificationScheduler {
 
 /// Widget for managing scheduled notifications
 class ScheduledNotificationManager extends StatefulWidget {
-  const ScheduledNotificationManager({Key? key}) : super(key: key);
+  const ScheduledNotificationManager({super.key});
 
   @override
   State<ScheduledNotificationManager> createState() => _ScheduledNotificationManagerState();

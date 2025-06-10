@@ -1,18 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Mock imports for testing
-import '../lib/services/improved_notification_service.dart';
-import '../lib/services/notification_migration_service.dart';
-import '../lib/utils/notification_utils.dart';
+// Package imports for testing
+import 'package:rhythmbhara_tara_sadhana/services/improved_notification_service.dart';
+import 'package:rhythmbhara_tara_sadhana/utils/notification_utils.dart';
 
 void main() {
   group('Improved Notification System Tests', () {
     late FakeFirebaseFirestore fakeFirestore;
-    late MockFirebaseAuth mockAuth;
     late MockUser mockUser;
 
     setUp(() async {
@@ -23,7 +20,7 @@ void main() {
         email: 'test@example.com',
         displayName: 'Test User',
       );
-      mockAuth = MockFirebaseAuth(mockUser: mockUser, signedIn: true);
+      MockFirebaseAuth(mockUser: mockUser, signedIn: true);
       
       // Setup SharedPreferences for testing
       SharedPreferences.setMockInitialValues({});

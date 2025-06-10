@@ -243,6 +243,62 @@ class NotificationProvider with ChangeNotifier {
     }
   }
 
+  /// Mark notification as read and immediately remove from UI (for Dismissible widgets)
+  void markAsReadAndRemove(String notificationId, bool isAdminNotification) {
+    try {
+      // Immediately remove from local lists to prevent Dismissible tree errors
+      if (isAdminNotification) {
+        _adminNotifications.removeWhere((n) => n['id'] == notificationId);
+        debugPrint('✅ Admin notification $notificationId removed from UI immediately');
+      } else {
+        _userNotifications.removeWhere((n) => n['id'] == notificationId);
+        debugPrint('✅ User notification $notificationId removed from UI immediately');
+      }
+      
+      // Update unread count immediately
+      if (_unreadCount > 0) {
+        _unreadCount--;
+      }
+      
+      // Notify listeners to update UI immediately
+      notifyListeners();
+      
+      // Update backend asynchronously without blocking UI
+      _updateNotificationInBackground(notificationId, isAdminNotification);
+    } catch (e) {
+      debugPrint('❌ Error removing notification from UI: $e');
+    }
+  }
+  
+  /// Update notification in background after UI removal
+  Future<void> _updateNotificationInBackground(String notificationId, bool isAdminNotification) async {
+    try {
+      bool success = false;
+      
+      if (_useImprovedSystem) {
+        success = isAdminNotification
+            ? await _improvedService.markAdminNotificationAsRead(notificationId)
+            : await _improvedService.markNotificationAsRead(notificationId);
+      } else {
+        success = isAdminNotification
+            ? await _notificationService.markAdminNotificationAsRead(notificationId)
+            : await _notificationService.markNotificationAsRead(notificationId);
+      }
+      
+      if (success) {
+        debugPrint('✅ Notification $notificationId updated in backend successfully');
+        // Update unread count from server to ensure consistency
+        await _updateUnreadCount();
+      } else {
+        debugPrint('❌ Failed to update notification $notificationId in backend');
+        // Could implement retry logic or revert local changes here
+      }
+    } catch (e) {
+      debugPrint('❌ Error updating notification in background: $e');
+      // Could implement retry logic or error reporting here
+    }
+  }
+
   /// Mark notification as read using appropriate service
   Future<bool> markAsRead(String notificationId, bool isAdminNotification) async {
     if (_processingNotifications.contains(notificationId)) {

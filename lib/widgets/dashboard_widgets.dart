@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'dart:math';
+import 'dart:math' as math;
+import '../utils/safe_ui_utils.dart';
 
 class PracticeTile extends StatefulWidget {
   final String title;
@@ -133,7 +134,7 @@ class _PracticeTileState extends State<PracticeTile>
                     ),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.safeWithOpacity(0.2),
                       width: 1.5,
                     ),
                   ),
@@ -153,12 +154,12 @@ class _PracticeTileState extends State<PracticeTile>
                               color: widget.iconContainerColor,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.25),
+                                color: Colors.white.safeWithOpacity(0.25),
                                 width: 1.5,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.safeWithOpacity(0.1),
                                   blurRadius: 5,
                                   spreadRadius: 0,
                                   offset: const Offset(0, 2),
@@ -198,7 +199,7 @@ class _PracticeTileState extends State<PracticeTile>
                           Text(
                             widget.description,
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.85),
+                              color: Colors.white.safeWithOpacity(0.85),
                               fontSize: 14,
                             ),
                           ),
@@ -214,10 +215,10 @@ class _PracticeTileState extends State<PracticeTile>
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.safeWithOpacity(0.15),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.safeWithOpacity(0.2),
                                   width: 1,
                                 ),
                               ),
@@ -227,7 +228,7 @@ class _PracticeTileState extends State<PracticeTile>
                                   Text(
                                     'Open',
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.95),
+                                      color: Colors.white.safeWithOpacity(0.95),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -255,7 +256,7 @@ class _PracticeTileState extends State<PracticeTile>
   }
 
   List<Widget> _buildParticles() {
-    final Random random = Random();
+    final random = math.Random();
     final List<Widget> particles = [];
 
     for (int i = 0; i < 5; i++) {
@@ -269,7 +270,7 @@ class _PracticeTileState extends State<PracticeTile>
           top: top,
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0.0, end: 1.0),
-            duration: Duration(milliseconds: 1000 + random.nextInt(1000)),
+            duration: Duration(milliseconds: (1000 + random.nextDouble() * 1000).round()),
             curve: Curves.easeInOut,
             builder: (context, value, child) {
               return Opacity(
@@ -279,7 +280,7 @@ class _PracticeTileState extends State<PracticeTile>
                   child: Container(
                     width: size,
                     height: size,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
@@ -319,12 +320,12 @@ class DashboardStatsCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.safeWithOpacity(0.15),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
+          border: Border.all(color: Colors.white.safeWithOpacity(0.2), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.2),
+              color: color.safeWithOpacity(0.2),
               blurRadius: 10,
               spreadRadius: 0,
               offset: const Offset(0, 4),
@@ -339,7 +340,7 @@ class DashboardStatsCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
+                    color: color.safeWithOpacity(0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(icon, color: color, size: 20),
@@ -348,7 +349,7 @@ class DashboardStatsCard extends StatelessWidget {
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 14,
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.safeWithOpacity(0.7),
                 ),
               ],
             ),
@@ -366,7 +367,7 @@ class DashboardStatsCard extends StatelessWidget {
               title,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.safeWithOpacity(0.7),
               ),
             ),
           ],
@@ -422,7 +423,7 @@ class DashboardProgressBar extends StatelessWidget {
               height: 8,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.safeWithOpacity(0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -437,7 +438,7 @@ class DashboardProgressBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.4),
+                    color: color.safeWithOpacity(0.4),
                     blurRadius: 6,
                     spreadRadius: 0,
                     offset: const Offset(0, 2),
@@ -474,30 +475,28 @@ class AchievementBadge extends StatelessWidget {
           width: 60,
           height: 60,
           decoration: BoxDecoration(
-            color:
-                isAchieved
-                    ? color.withOpacity(0.2)
-                    : Colors.grey.withOpacity(0.2),
+            color: isAchieved
+                ? color.safeWithOpacity(0.2)
+                : Colors.grey.safeWithOpacity(0.2),
             shape: BoxShape.circle,
             border: Border.all(
-              color: isAchieved ? color : Colors.grey.withOpacity(0.5),
+              color: isAchieved ? color : Colors.grey.safeWithOpacity(0.5),
               width: 2,
             ),
-            boxShadow:
-                isAchieved
-                    ? [
-                      BoxShadow(
-                        color: color.withOpacity(0.3),
-                        blurRadius: 8,
-                        spreadRadius: 0,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                    : null,
+            boxShadow: isAchieved
+                ? [
+                    BoxShadow(
+                      color: color.safeWithOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Icon(
             icon,
-            color: isAchieved ? color : Colors.grey.withOpacity(0.5),
+            color: isAchieved ? color : Colors.grey.safeWithOpacity(0.5),
             size: 30,
           ),
         ),
@@ -505,7 +504,7 @@ class AchievementBadge extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: isAchieved ? Colors.white : Colors.white.withOpacity(0.5),
+            color: isAchieved ? Colors.white : Colors.white.safeWithOpacity(0.5),
             fontSize: 12,
             fontWeight: FontWeight.w500,
           ),
@@ -542,9 +541,9 @@ class NotificationCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.safeWithOpacity(0.15),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
+          border: Border.all(color: Colors.white.safeWithOpacity(0.2), width: 1.5),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,7 +551,7 @@ class NotificationCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.safeWithOpacity(0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 24, color: color),
@@ -575,7 +574,7 @@ class NotificationCard extends StatelessWidget {
                     message,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.safeWithOpacity(0.8),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -583,7 +582,7 @@ class NotificationCard extends StatelessWidget {
                     _formatTime(time),
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.safeWithOpacity(0.6),
                     ),
                   ),
                 ],
@@ -633,7 +632,7 @@ class DashboardCalendarDay extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: isToday ? Colors.white.withOpacity(0.2) : Colors.transparent,
+          color: isToday ? Colors.white.safeWithOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: isToday ? Border.all(color: Colors.white, width: 1.5) : null,
         ),

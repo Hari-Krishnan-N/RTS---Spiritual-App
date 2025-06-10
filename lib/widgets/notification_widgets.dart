@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/improved_notification_provider.dart';
+import '../utils/safe_ui_utils.dart';
 
 /// Reusable notification badge widget that shows unread count
 /// Features:
@@ -59,7 +60,7 @@ class NotificationBadge extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: (badgeColor ?? Colors.red).withValues(alpha: 0.3),
+                          color: (badgeColor ?? Colors.red).safeWithOpacity(0.3),
                           blurRadius: 8,
                           spreadRadius: 2,
                         ),
@@ -161,10 +162,10 @@ class NotificationPriorityBadge extends StatelessWidget {
         vertical: compact ? 1 : 2,
       ),
       decoration: BoxDecoration(
-        color: config['color'].withOpacity(0.1),
+        color: config['color'].safeWithOpacity(0.1),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: config['color'].withOpacity(0.3),
+          color: config['color'].safeWithOpacity(0.3),
           width: 1,
         ),
       ),
@@ -212,14 +213,14 @@ class NotificationTypeIcon extends StatelessWidget {
       padding: EdgeInsets.all(size * 0.4),
       decoration: BoxDecoration(
         color: isRead 
-            ? config['color'].withOpacity(0.1) 
-            : config['color'].withOpacity(0.2),
+            ? config['color'].safeWithOpacity(0.1) 
+            : config['color'].safeWithOpacity(0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(
         config['icon'],
         color: isRead 
-            ? config['color'].withOpacity(0.6) 
+            ? config['color'].safeWithOpacity(0.6) 
             : config['color'],
         size: size,
       ),
@@ -791,6 +792,73 @@ class NotificationFAB extends StatelessWidget {
         backgroundColor: backgroundColor ?? Colors.orange,
         foregroundColor: foregroundColor ?? Colors.white,
         child: const Icon(Icons.notifications),
+      ),
+    );
+  }
+}
+
+/// Dismissible notification item widget for lists with proper state management
+class DismissibleNotificationListItem extends StatefulWidget {
+  final Map<String, dynamic> notification;
+  final VoidCallback? onTap;
+  final VoidCallback? onMarkAsRead;
+  final VoidCallback? onDismissed;
+  final bool showActions;
+
+  const DismissibleNotificationListItem({
+    super.key,
+    required this.notification,
+    this.onTap,
+    this.onMarkAsRead,
+    this.onDismissed,
+    this.showActions = true,
+  });
+
+  @override
+  State<DismissibleNotificationListItem> createState() => _DismissibleNotificationListItemState();
+}
+
+class _DismissibleNotificationListItemState extends State<DismissibleNotificationListItem> {
+  bool _isDismissed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isDismissed) {
+      return const SizedBox.shrink();
+    }
+
+    final notificationId = widget.notification['id'] as String? ?? '';
+    
+    return Dismissible(
+      key: Key('notification_$notificationId'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      onDismissed: (direction) {
+        setState(() {
+          _isDismissed = true;
+        });
+        // Call the dismiss callback after the widget is removed from the tree
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.onDismissed?.call();
+        });
+      },
+      child: NotificationListItem(
+        notification: widget.notification,
+        onTap: widget.onTap,
+        onMarkAsRead: widget.onMarkAsRead,
+        showActions: widget.showActions,
       ),
     );
   }
