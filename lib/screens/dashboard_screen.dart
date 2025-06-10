@@ -3,11 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
 import '../providers/sadhana_provider.dart';
+import '../providers/notification_provider.dart';
 import '../services/admin_service.dart';
 import '../utils/app_theme.dart';
 import '../widgets/dashboard_widgets.dart';
 import '../screens/practice_screens_controller.dart';
 import '../screens/admin_dashboard_screen.dart';
+import '../screens/notifications_screen.dart';
 import '../utils/navigation_transitions.dart';
 import 'profile_screen.dart';
 import 'status_screen.dart';
@@ -33,7 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   int _selectedIndex = 0;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   // FIXED: Add flag to prevent repeated redirects
   bool _hasCheckedAuth = false;
 
@@ -53,6 +55,15 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
 
     _animationController.forward();
+
+    // Initialize notifications when dashboard loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final notificationProvider = Provider.of<NotificationProvider>(
+        context,
+        listen: false,
+      );
+      notificationProvider.initialize();
+    });
   }
 
   void _setSelectedIndex(int index) {
@@ -64,9 +75,11 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<SadhanaProvider>(context);
-    
+
     // FIXED: Only check auth once and handle navigation properly
-    if (!provider.isLoggedIn && !provider.isInSignupProcess && !_hasCheckedAuth) {
+    if (!provider.isLoggedIn &&
+        !provider.isInSignupProcess &&
+        !_hasCheckedAuth) {
       _hasCheckedAuth = true;
       // Use a post frame callback to avoid setState during build
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -75,11 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         }
       });
       // Return a loading screen while checking
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     // FIXED: Reset the flag when user is logged in
@@ -92,10 +101,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     // List of screen widgets
     final List<Widget> screens = [
-      DashboardHomeScreen(
-        onNavigateToTab: _setSelectedIndex,
-        isAdmin: isAdmin,
-      ),
+      DashboardHomeScreen(onNavigateToTab: _setSelectedIndex, isAdmin: isAdmin),
       const StatusScreen(),
       const ProfileScreen(),
     ];
@@ -246,7 +252,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 class DashboardHomeScreen extends StatefulWidget {
   final Function(int) onNavigateToTab;
   final bool isAdmin;
-  
+
   const DashboardHomeScreen({
     super.key,
     required this.onNavigateToTab,
@@ -293,7 +299,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
     final provider = Provider.of<SadhanaProvider>(context);
     final username = provider.username;
     final photoUrl = provider.userPhotoUrl;
-    final size = MediaQuery.of(context).size;
+    // Removed unused variable 'size'
 
     return Scaffold(
       body: Container(
@@ -326,7 +332,7 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                     padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                     child: Column(
                       children: [
-                        // User greeting row with admin button
+                        // User greeting row with admin button and notification icon
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -341,7 +347,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                         "Namaste,",
                                         style: TextStyle(
                                           fontSize: 16,
-                                          color: Colors.white.withValues(alpha: 0.8),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.8,
+                                          ),
                                         ),
                                       ),
                                       if (widget.isAdmin) ...[
@@ -352,10 +360,16 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                             vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Colors.amber.withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(12),
+                                            color: Colors.amber.withValues(
+                                              alpha: 0.2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                             border: Border.all(
-                                              color: Colors.amber.withOpacity(0.5),
+                                              color: Colors.amber.withValues(
+                                                alpha: 0.5,
+                                              ),
                                             ),
                                           ),
                                           child: const Text(
@@ -383,6 +397,101 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                               ),
                             ),
 
+                            // Notification icon
+                            Consumer<NotificationProvider>(
+                              builder: (context, notificationProvider, child) {
+                                final unreadCount =
+                                    notificationProvider.unreadCount;
+
+                                return GestureDetector(
+                                  onTap: () {
+                                    HapticFeedback.lightImpact();
+                                    Navigator.push(
+                                      context,
+                                      CupertinoStylePageRoute(
+                                        page: const NotificationsScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color:
+                                            unreadCount > 0
+                                                ? AppTheme.accentColor
+                                                    .withValues(alpha: 0.5)
+                                                : Colors.white.withValues(alpha: 0.2),
+                                        width: unreadCount > 0 ? 2 : 1,
+                                      ),
+                                      boxShadow:
+                                          unreadCount > 0
+                                              ? [
+                                                BoxShadow(
+                                                  color: AppTheme.accentColor
+                                                      .withValues(alpha: 0.3),
+                                                  blurRadius: 8,
+                                                  spreadRadius: 0,
+                                                ),
+                                              ]
+                                              : null,
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        Icon(
+                                          unreadCount > 0
+                                              ? Icons.notifications_active
+                                              : Icons.notifications_outlined,
+                                          color:
+                                              unreadCount > 0
+                                                  ? AppTheme.accentColor
+                                                  : Colors.white.withValues(
+                                                    alpha: 0.7,
+                                                  ),
+                                          size: 24,
+                                        ),
+                                        if (unreadCount > 0)
+                                          Positioned(
+                                            right: 0,
+                                            top: 0,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              constraints: const BoxConstraints(
+                                                minWidth: 16,
+                                                minHeight: 16,
+                                              ),
+                                              child: Text(
+                                                unreadCount > 99
+                                                    ? '99+'
+                                                    : unreadCount.toString(),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+
+                            const SizedBox(width: 12),
+
                             // Admin access button (if admin)
                             if (widget.isAdmin) ...[
                               GestureDetector(
@@ -398,15 +507,15 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                 child: Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.amber.withOpacity(0.2),
+                                    color: Colors.amber.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: Colors.amber.withOpacity(0.5),
+                                      color: Colors.amber.withValues(alpha: 0.5),
                                       width: 2,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.amber.withOpacity(0.3),
+                                        color: Colors.amber.withValues(alpha: 0.3),
                                         blurRadius: 8,
                                         spreadRadius: 0,
                                       ),
@@ -426,22 +535,30 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.lightImpact();
-                                widget.onNavigateToTab(2); // Navigate to profile tab
+                                widget.onNavigateToTab(
+                                  2,
+                                ); // Navigate to profile tab
                               },
                               child: Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: widget.isAdmin 
-                                        ? Colors.amber.withOpacity(0.7)
-                                        : Colors.white.withValues(alpha: 0.7),
+                                    color:
+                                        widget.isAdmin
+                                            ? Colors.amber.withValues(alpha: 0.7)
+                                            : Colors.white.withValues(
+                                              alpha: 0.7,
+                                            ),
                                     width: widget.isAdmin ? 3 : 2,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: widget.isAdmin
-                                          ? Colors.amber.withOpacity(0.3)
-                                          : Colors.black.withValues(alpha: 0.2),
+                                      color:
+                                          widget.isAdmin
+                                              ? Colors.amber.withValues(alpha: 0.3)
+                                              : Colors.black.withValues(
+                                                alpha: 0.2,
+                                              ),
                                       blurRadius: 10,
                                       spreadRadius: 0,
                                     ),
@@ -451,7 +568,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                   tag: 'profile_avatar',
                                   child: CircleAvatar(
                                     radius: 28,
-                                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                                    backgroundColor: Colors.white.withValues(
+                                      alpha: 0.2,
+                                    ),
                                     backgroundImage:
                                         photoUrl != null
                                             ? NetworkImage(photoUrl)
@@ -520,8 +639,12 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                             shape: BoxShape.circle,
                                             gradient: RadialGradient(
                                               colors: [
-                                                Colors.white.withValues(alpha: 0.8 * value),
-                                                Colors.white.withValues(alpha: 0.1 * value),
+                                                Colors.white.withValues(
+                                                  alpha: 0.8 * value,
+                                                ),
+                                                Colors.white.withValues(
+                                                  alpha: 0.1 * value,
+                                                ),
                                                 Colors.transparent,
                                               ],
                                               stops: const [0.0, 0.5, 1.0],
@@ -547,8 +670,12 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                                           shape: BoxShape.circle,
                                           gradient: RadialGradient(
                                             colors: [
-                                              Colors.white.withValues(alpha: 0.3),
-                                              Colors.white.withValues(alpha: 0.1),
+                                              Colors.white.withValues(
+                                                alpha: 0.3,
+                                              ),
+                                              Colors.white.withValues(
+                                                alpha: 0.1,
+                                              ),
                                               Colors.transparent,
                                             ],
                                           ),
@@ -617,7 +744,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF4A7843), // Muted green to match image
                           Color(0xFF6B9B5A), // Lighter muted green
                         ],
-                        shadowColor: const Color(0xFF4A7843).withValues(alpha: 0.4),
+                        shadowColor: const Color(
+                          0xFF4A7843,
+                        ).withValues(alpha: 0.4),
                         iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
@@ -647,7 +776,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF2E5B5B), // Muted teal to match image
                           Color(0xFF4A7A7A), // Lighter muted teal
                         ],
-                        shadowColor: const Color(0xFF2E5B5B).withValues(alpha: 0.4),
+                        shadowColor: const Color(
+                          0xFF2E5B5B,
+                        ).withValues(alpha: 0.4),
                         iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
@@ -677,7 +808,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF8B4513), // Rich brown to match image
                           Color(0xFFA0603C), // Lighter brown
                         ],
-                        shadowColor: const Color(0xFF8B4513).withValues(alpha: 0.4),
+                        shadowColor: const Color(
+                          0xFF8B4513,
+                        ).withValues(alpha: 0.4),
                         iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(
@@ -707,7 +840,9 @@ class _DashboardHomeScreenState extends State<DashboardHomeScreen>
                           Color(0xFF4A3A6B), // Muted purple to match image
                           Color(0xFF6B5A8A), // Lighter muted purple
                         ],
-                        shadowColor: const Color(0xFF4A3A6B).withValues(alpha: 0.4),
+                        shadowColor: const Color(
+                          0xFF4A3A6B,
+                        ).withValues(alpha: 0.4),
                         iconContainerColor: Colors.white.withValues(alpha: 0.2),
                         onTap:
                             () => _navigateToPractice(

@@ -10,6 +10,7 @@ import 'screens/admin_dashboard_screen.dart';
 import 'screens/admin_user_management_screen.dart';
 import 'screens/admin_analytics_screen.dart';
 import 'providers/sadhana_provider.dart';
+import 'providers/notification_provider.dart';
 import 'utils/app_theme.dart';
 import 'utils/navigation_transitions.dart';
 
@@ -32,8 +33,11 @@ void main() async {
   }
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => SadhanaProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => SadhanaProvider()),
+        ChangeNotifierProvider(create: (context) => NotificationProvider()),
+      ],
       child: const MyApp(),
     ),
   );

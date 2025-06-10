@@ -294,7 +294,7 @@ class AdminService {
     }
   }
 
-  // Send notification to all users (simulate - in real app would use FCM)
+  // Send notification to all users (Updated to actually broadcast)
   Future<void> sendNotificationToAllUsers(String title, String message) async {
     try {
       if (!isCurrentUserAdmin()) {
@@ -310,7 +310,26 @@ class AdminService {
         'type': 'broadcast',
       });
 
-      // In a real implementation, you would integrate with Firebase Cloud Messaging
+      // Get all users and send individual notifications
+      final usersSnapshot = await _firestore.collection(_userCollection).get();
+      
+      final batch = _firestore.batch();
+      for (var userDoc in usersSnapshot.docs) {
+        final notificationRef = _firestore.collection('notifications').doc();
+        batch.set(notificationRef, {
+          'title': title,
+          'message': message,
+          'type': 'admin',
+          'createdAt': FieldValue.serverTimestamp(),
+          'isRead': false,
+          'userId': userDoc.id,
+          'fromAdmin': true,
+          'adminEmail': _auth.currentUser?.email,
+        });
+      }
+
+      await batch.commit();
+
       debugPrint('Notification sent to all users: $title - $message');
     } catch (e) {
       throw Exception('Failed to send notification: ${e.toString()}');

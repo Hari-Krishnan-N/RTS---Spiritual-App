@@ -89,11 +89,6 @@ class _LoginScreenState extends State<LoginScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          image: const DecorationImage(
-            image: AssetImage('assets/images/subtle_pattern.png'),
-            repeat: ImageRepeat.repeat,
-            opacity: 0.05,
-          ),
         ),
         child: SafeArea(
           child: LayoutBuilder(

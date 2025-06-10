@@ -5,11 +5,13 @@ import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../services/database_service.dart';
+import '../services/notification_service.dart';
 
 class SadhanaProvider with ChangeNotifier {
   // Auth and Database Services
   final AuthService _authService = AuthService();
   final DatabaseService _databaseService = DatabaseService();
+  final NotificationService _notificationService = NotificationService();
 
   bool _isLoggedIn = false;
   String _currentMonth = DateFormat('MMMM yyyy').format(DateTime.now());
@@ -72,11 +74,15 @@ class SadhanaProvider with ChangeNotifier {
   // FIXED: Improved auth state listener with better conflict handling
   void _setupAuthListener() {
     _authService.authStateChanges.listen((User? user) async {
-      debugPrint('Auth state changed: ${user?.uid}, signup in progress: $_isInSignupProcess, navigation locked: $_isNavigationLocked');
-      
+      debugPrint(
+        'Auth state changed: ${user?.uid}, signup in progress: $_isInSignupProcess, navigation locked: $_isNavigationLocked',
+      );
+
       // Don't interfere during signup process or when navigation is locked
       if (_isInSignupProcess || _isNavigationLocked) {
-        debugPrint('Auth state change ignored - signup in progress or navigation locked');
+        debugPrint(
+          'Auth state change ignored - signup in progress or navigation locked',
+        );
         return;
       }
 
@@ -91,6 +97,15 @@ class SadhanaProvider with ChangeNotifier {
 
           // Load user data from Firestore
           await _loadUserDataFromFirestore();
+
+          // Initialize notifications after user data is loaded
+          try {
+            await _notificationService.initialize();
+            await checkAndGenerateMonthlyReminders();
+          } catch (e) {
+            debugPrint('Error initializing notifications: $e');
+          }
+
           notifyListeners();
         }
       } else {
@@ -123,6 +138,14 @@ class SadhanaProvider with ChangeNotifier {
 
       // Load user data from Firestore
       await _loadUserDataFromFirestore();
+
+      // Initialize notifications
+      try {
+        await _notificationService.initialize();
+        await checkAndGenerateMonthlyReminders();
+      } catch (e) {
+        debugPrint('Error initializing notifications in _loadInitialData: $e');
+      }
     } else {
       // Load data from SharedPreferences for compatibility
       await _loadDataFromSharedPreferences();
@@ -288,17 +311,17 @@ class SadhanaProvider with ChangeNotifier {
     }
   }
 
-  // FIXED: Login with proper navigation control
+  // FIXED: Login with proper navigation control and notification initialization
   Future<void> login(String email, String password) async {
     _setLoading(true);
 
     try {
       // Lock navigation during login
       _isNavigationLocked = true;
-      
+
       // Disable signup protection when doing actual login
       _isInSignupProcess = false;
-      
+
       await _authService.signInWithEmailAndPassword(email, password);
 
       // Wait for auth state to update
@@ -313,7 +336,14 @@ class SadhanaProvider with ChangeNotifier {
 
       // Update state
       _isLoggedIn = true;
-      
+
+      // Initialize notifications and check for monthly reminders
+      try {
+        await _notificationService.initialize();
+        await checkAndGenerateMonthlyReminders();
+      } catch (e) {
+        debugPrint('Error initializing notifications during login: $e');
+      }
     } catch (e) {
       // Login failed
       _isLoggedIn = false;
@@ -339,6 +369,14 @@ class SadhanaProvider with ChangeNotifier {
       // Save initial data to SharedPreferences and Firestore
       await _saveDataToSharedPreferences();
       await _saveCurrentMonthToFirestore();
+
+      // Initialize notifications for new user
+      try {
+        await _notificationService.initialize();
+        await checkAndGenerateMonthlyReminders();
+      } catch (e) {
+        debugPrint('Error initializing notifications during registration: $e');
+      }
     } catch (e) {
       _isLoggedIn = false;
       rethrow;
@@ -347,17 +385,17 @@ class SadhanaProvider with ChangeNotifier {
     }
   }
 
-  // FIXED: Google Sign-In with proper navigation control
+  // FIXED: Google Sign-In with proper navigation control and notification initialization
   Future<void> signInWithGoogle() async {
     _setLoading(true);
 
     try {
       // Lock navigation during Google sign-in
       _isNavigationLocked = true;
-      
+
       // Disable signup protection for Google sign-in
       _isInSignupProcess = false;
-      
+
       User? user = await _authService.signInWithGoogle();
 
       if (user != null) {
@@ -371,6 +409,16 @@ class SadhanaProvider with ChangeNotifier {
 
         // Load user data
         await _loadUserDataFromFirestore();
+
+        // Initialize notifications and check for monthly reminders
+        try {
+          await _notificationService.initialize();
+          await checkAndGenerateMonthlyReminders();
+        } catch (e) {
+          debugPrint(
+            'Error initializing notifications during Google sign-in: $e',
+          );
+        }
       } else {
         // Sign in canceled by user
         _isLoggedIn = false;
@@ -399,6 +447,13 @@ class SadhanaProvider with ChangeNotifier {
       // Clear SharedPreferences login state
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', false);
+
+      // Cancel all local notifications
+      try {
+        await _notificationService.cancelAllNotifications();
+      } catch (e) {
+        debugPrint('Error canceling notifications during logout: $e');
+      }
     } catch (e) {
       print('Logout error: $e');
     } finally {
@@ -463,7 +518,7 @@ class SadhanaProvider with ChangeNotifier {
     return _monthlyRecords[monthKey];
   }
 
-  // Update Tharpanam status
+  // Update Tharpanam status with notification integration
   Future<void> updateTharpanamStatus(bool status) async {
     _tharpanamStatus = status;
 
@@ -475,6 +530,13 @@ class SadhanaProvider with ChangeNotifier {
 
     await _saveCurrentMonthToFirestore();
     await _saveDataToSharedPreferences();
+
+    // Update notification reminders when practice is completed/uncompleted
+    try {
+      await _notificationService.updateMonthlyReminderStatus();
+    } catch (e) {
+      debugPrint('Error updating notification reminders: $e');
+    }
 
     notifyListeners();
   }
@@ -514,10 +576,19 @@ class SadhanaProvider with ChangeNotifier {
 
     await _saveDataToSharedPreferences();
 
+    // Update notifications if this is the current month
+    if (monthKey == _currentMonth) {
+      try {
+        await _notificationService.updateMonthlyReminderStatus();
+      } catch (e) {
+        debugPrint('Error updating notification reminders: $e');
+      }
+    }
+
     notifyListeners();
   }
 
-  // Update Homam status
+  // Update Homam status with notification integration
   Future<void> updateHomamStatus(bool status) async {
     _homamStatus = status;
 
@@ -529,6 +600,13 @@ class SadhanaProvider with ChangeNotifier {
 
     await _saveCurrentMonthToFirestore();
     await _saveDataToSharedPreferences();
+
+    // Update notification reminders when practice is completed/uncompleted
+    try {
+      await _notificationService.updateMonthlyReminderStatus();
+    } catch (e) {
+      debugPrint('Error updating notification reminders: $e');
+    }
 
     notifyListeners();
   }
@@ -568,10 +646,19 @@ class SadhanaProvider with ChangeNotifier {
 
     await _saveDataToSharedPreferences();
 
+    // Update notifications if this is the current month
+    if (monthKey == _currentMonth) {
+      try {
+        await _notificationService.updateMonthlyReminderStatus();
+      } catch (e) {
+        debugPrint('Error updating notification reminders: $e');
+      }
+    }
+
     notifyListeners();
   }
 
-  // Update Dhaanam status
+  // Update Dhaanam status with notification integration
   Future<void> updateDhaanamStatus(bool status) async {
     _dhaanamStatus = status;
 
@@ -583,6 +670,13 @@ class SadhanaProvider with ChangeNotifier {
 
     await _saveCurrentMonthToFirestore();
     await _saveDataToSharedPreferences();
+
+    // Update notification reminders when practice is completed/uncompleted
+    try {
+      await _notificationService.updateMonthlyReminderStatus();
+    } catch (e) {
+      debugPrint('Error updating notification reminders: $e');
+    }
 
     notifyListeners();
   }
@@ -621,6 +715,15 @@ class SadhanaProvider with ChangeNotifier {
     }
 
     await _saveDataToSharedPreferences();
+
+    // Update notifications if this is the current month
+    if (monthKey == _currentMonth) {
+      try {
+        await _notificationService.updateMonthlyReminderStatus();
+      } catch (e) {
+        debugPrint('Error updating notification reminders: $e');
+      }
+    }
 
     notifyListeners();
   }
@@ -718,5 +821,38 @@ class SadhanaProvider with ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  // NEW: Check and generate monthly reminders for notifications
+  Future<void> checkAndGenerateMonthlyReminders() async {
+    try {
+      await _notificationService.generateMonthlyReminderNotifications();
+    } catch (e) {
+      debugPrint('Error generating monthly reminders: $e');
+    }
+  }
+
+  // NEW: Manually trigger notification check (useful for testing)
+  Future<void> triggerNotificationCheck() async {
+    try {
+      await _notificationService.updateMonthlyReminderStatus();
+      await checkAndGenerateMonthlyReminders();
+    } catch (e) {
+      debugPrint('Error triggering notification check: $e');
+    }
+  }
+
+  // NEW: Get current month completion status for notifications
+  Map<String, bool> getCurrentMonthCompletionStatus() {
+    return {
+      'tharpanam': _tharpanamStatus,
+      'homam': _homamStatus,
+      'dhaanam': _dhaanamStatus,
+    };
+  }
+
+  // NEW: Check if current month has any incomplete practices
+  bool hasIncompleteMonthlyPractices() {
+    return !_tharpanamStatus || !_homamStatus || !_dhaanamStatus;
   }
 }

@@ -6,9 +6,8 @@ class CupertinoStylePageRoute<T> extends PageRouteBuilder<T> {
   
   CupertinoStylePageRoute({
     required this.page,
-    RouteSettings? settings,
+    super.settings,
   }) : super(
-    settings: settings,
     pageBuilder: (context, animation, secondaryAnimation) => page,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(1.0, 0.0);
@@ -37,9 +36,8 @@ class CupertinoStyleBackPageRoute<T> extends PageRouteBuilder<T> {
   
   CupertinoStyleBackPageRoute({
     required this.page,
-    RouteSettings? settings,
+    super.settings,
   }) : super(
-    settings: settings,
     pageBuilder: (context, animation, secondaryAnimation) => page,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(-1.0, 0.0);

@@ -235,7 +235,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen>
                 _statistics?['totalUsers']?.toString() ?? '0',
                 Icons.people,
                 Colors.blue,
-                _statistics?['activeUsers']?.toString() ?? '0' + ' active',
+                _statistics?['activeUsers']?.toString() ?? '0' ' active',
               ),
               _buildMetricCard(
                 'Total Jebam',
@@ -325,7 +325,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen>
           ...sortedMonths.map((month) {
             final data = monthlyStats[month] as Map<String, int>;
             return _buildMonthlyStatsCard(month, data);
-          }).toList(),
+          }),
         ],
       ),
     );

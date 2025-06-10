@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
-import 'dart:ui';
 import '../providers/sadhana_provider.dart';
 import '../services/admin_service.dart';
 import '../utils/app_theme.dart';
@@ -324,7 +323,7 @@ class _SplashScreenState extends State<SplashScreen>
                       // App name with fade-in animation and responsive text
                       FadeTransition(
                         opacity: _fadeAnimation,
-                        child: Container(
+                        child: SizedBox(
                           width: double.infinity,
                           child: Column(
                             children: [

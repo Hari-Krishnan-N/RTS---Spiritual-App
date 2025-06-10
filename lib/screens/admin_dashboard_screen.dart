@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 import '../services/admin_service.dart';
 import '../utils/app_theme.dart';
 import 'admin_user_management_screen.dart';
@@ -386,7 +385,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color.fromARGB(255, 0, 0, 0),
             ),
           ),
           const SizedBox(height: 4),
@@ -529,7 +528,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white.withOpacity(0.95),
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.95),
         title: const Text('Send Notification'),
         content: Column(
           mainAxisSize: MainAxisSize.min,

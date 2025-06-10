@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - users can read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // User's sadhana subcollection
+      match /sadhana/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // User's jebam heatmap subcollection
+      match /jebamHeatmap/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // User-specific notifications - users can only access their own notifications
+    match /user_notifications/{notificationId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Admin notifications - all authenticated users can read, only admins can write
+    match /admin_notifications/{notificationId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isAdmin();
+      
+      // Read status subcollection - users can only manage their own read status
+      match /readStatus/{userId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Notification metadata - users can only access their own metadata
+    match /notification_metadata/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Admin collection for managing admin users
+    match /admins/{adminId} {
+      allow read: if request.auth != null && isAdmin();
+      allow write: if request.auth != null && isSuperAdmin();
+    }
+
+    // Helper functions
+    function isAdmin() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isSuperAdmin() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'super_admin';
+    }
+
+    // Allow read access to app configuration (if needed)
+    match /app_config/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isAdmin();
+    }
+  }
+}
